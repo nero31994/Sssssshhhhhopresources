@@ -53,7 +53,7 @@
     </div>
   </div>
 
-  <!-- Your channels file MUST be before the logic below -->
+  <!-- Load channels AFTER the structure -->
   <script src="channels.js"></script>
 
   <script>
@@ -66,10 +66,10 @@
       const list = document.getElementById("channelList");
       const searchInput = document.getElementById("searchInput");
 
-      // Ensure channels are actually loaded
+      // Validate channels.js
       function ensureChannels() {
         if (typeof window.channels === "undefined") {
-          list.innerHTML = '<li class="text-center text-red-400">❌ channels.js not loaded</li>';
+          list.innerHTML = '<li class="text-center text-red-400">❌ channels.js not loaded or path incorrect</li>';
           return false;
         }
         if (Object.keys(window.channels).length === 0) {
@@ -81,7 +81,6 @@
 
       function populateChannelList() {
         if (!ensureChannels()) return;
-
         list.innerHTML = "";
         Object.keys(channels)
           .sort((a, b) => channels[a].name.localeCompare(channels[b].name))
@@ -101,7 +100,6 @@
       function loadStream(key) {
         const ch = channels[key];
         if (!ch) return;
-
         jwplayer("player").setup({
           file: ch.url,
           type: ch.type,
@@ -128,8 +126,8 @@
         });
       });
 
-      // Try populating after small delay in case channels.js loads late
-      setTimeout(populateChannelList, 500);
+      // Delay to ensure channels.js is ready
+      setTimeout(populateChannelList, 700);
     });
   </script>
 
