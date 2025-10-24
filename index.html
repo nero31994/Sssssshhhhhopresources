@@ -12,7 +12,6 @@
   <!-- JWPlayer -->
   <script src="jwpsrv.js"></script>
   <script src="jwplayer.js"></script>
-  <script src="channels.js"></script>
 </head>
 
 <body class="bg-black text-white min-h-screen flex flex-col relative overflow-hidden">
@@ -41,94 +40,97 @@
     </div>
 
     <!-- Search Bar -->
-    <div class="p-3 border-b border-gray-700">
+    <div class="p-3 border-b border-gray-700 sticky top-0 bg-gray-900 z-10">
       <input id="searchInput" type="text" placeholder="Search channels..."
         class="w-full p-2 rounded bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 outline-none">
     </div>
 
     <!-- Channel List -->
     <div class="p-3 overflow-y-auto h-[calc(100%-7rem)]">
-      <ul id="channelList" class="space-y-2"></ul>
+      <ul id="channelList" class="space-y-2 text-sm text-gray-300">
+        <li class="text-center text-gray-500">Loading channels...</li>
+      </ul>
     </div>
   </div>
+
+  <!-- Your channels file MUST be before the logic below -->
+  <script src="channels.js"></script>
 
   <script>
     jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
 
-    function loadStream(channelKey) {
-      const channel = channels[channelKey];
-      if (!channel) return;
+    document.addEventListener("DOMContentLoaded", () => {
+      const sidebar = document.getElementById("channelSidebar");
+      const toggle = document.getElementById("channelToggle");
+      const closeBtn = document.getElementById("closeSidebar");
+      const list = document.getElementById("channelList");
+      const searchInput = document.getElementById("searchInput");
 
-      jwplayer("player").setup({
-        file: channel.url,
-        type: channel.type,
-        drm: channel.type === 'mpd' ? {
-          clearkey: { keyId: channel.keyId, key: channel.key }
-        } : undefined,
-        width: "100%",
-        aspectratio: "16:9",
-        autostart: true
-      });
-    }
-
-    function populateChannelList() {
-      const list = document.getElementById('channelList');
-      list.innerHTML = '';
-
-      Object.keys(channels)
-        .sort((a, b) => channels[a].name.localeCompare(channels[b].name))
-        .forEach(key => {
-          const li = document.createElement('li');
-          li.className =
-            'bg-gray-800 hover:bg-gray-700 cursor-pointer rounded-lg p-3 text-sm transition';
-          li.textContent = channels[key].name;
-          li.dataset.name = channels[key].name.toLowerCase();
-          li.addEventListener('click', () => {
-            loadStream(key);
-            closeSidebar();
-          });
-          list.appendChild(li);
-        });
-    }
-
-    function waitForChannels(callback) {
-      const check = setInterval(() => {
-        if (typeof channels !== 'undefined' && Object.keys(channels).length > 0) {
-          clearInterval(check);
-          callback();
+      // Ensure channels are actually loaded
+      function ensureChannels() {
+        if (typeof window.channels === "undefined") {
+          list.innerHTML = '<li class="text-center text-red-400">❌ channels.js not loaded</li>';
+          return false;
         }
-      }, 300);
-    }
+        if (Object.keys(window.channels).length === 0) {
+          list.innerHTML = '<li class="text-center text-yellow-400">⚠️ No channels found in channels.js</li>';
+          return false;
+        }
+        return true;
+      }
 
-    function closeSidebar() {
-      document.getElementById('channelSidebar').classList.add('translate-x-full');
-    }
+      function populateChannelList() {
+        if (!ensureChannels()) return;
 
-    function openSidebar() {
-      document.getElementById('channelSidebar').classList.remove('translate-x-full');
-    }
+        list.innerHTML = "";
+        Object.keys(channels)
+          .sort((a, b) => channels[a].name.localeCompare(channels[b].name))
+          .forEach(key => {
+            const li = document.createElement("li");
+            li.className = "bg-gray-800 hover:bg-gray-700 cursor-pointer rounded-lg p-3 transition";
+            li.textContent = channels[key].name;
+            li.dataset.name = channels[key].name.toLowerCase();
+            li.onclick = () => {
+              loadStream(key);
+              closeSidebar();
+            };
+            list.appendChild(li);
+          });
+      }
 
-    window.onload = function () {
-      const toggle = document.getElementById('channelToggle');
-      const sidebar = document.getElementById('channelSidebar');
-      const closeBtn = document.getElementById('closeSidebar');
-      const searchInput = document.getElementById('searchInput');
+      function loadStream(key) {
+        const ch = channels[key];
+        if (!ch) return;
 
-      // Wait until channels.js is fully loaded
-      waitForChannels(populateChannelList);
+        jwplayer("player").setup({
+          file: ch.url,
+          type: ch.type,
+          drm: ch.type === "mpd" ? {
+            clearkey: { keyId: ch.keyId, key: ch.key }
+          } : undefined,
+          width: "100%",
+          aspectratio: "16:9",
+          autostart: true
+        });
+      }
 
-      toggle.addEventListener('click', openSidebar);
-      closeBtn.addEventListener('click', closeSidebar);
+      function closeSidebar() {
+        sidebar.classList.add("translate-x-full");
+      }
 
-      // Channel Search Filter
-      searchInput.addEventListener('input', function () {
-        const query = this.value.toLowerCase();
-        const items = document.querySelectorAll('#channelList li');
-        items.forEach(li => {
-          li.style.display = li.dataset.name.includes(query) ? 'block' : 'none';
+      toggle.onclick = () => sidebar.classList.remove("translate-x-full");
+      closeBtn.onclick = closeSidebar;
+
+      searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+        document.querySelectorAll("#channelList li").forEach(li => {
+          li.style.display = li.dataset.name?.includes(query) ? "block" : "none";
         });
       });
-    };
+
+      // Try populating after small delay in case channels.js loads late
+      setTimeout(populateChannelList, 500);
+    });
   </script>
 
 </body>
