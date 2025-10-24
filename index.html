@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTIKWANG TV</title>
 
-  <!-- Tailwind CSS & Font Awesome -->
+  <!-- Tailwind & Font Awesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -23,26 +23,23 @@
     </div>
   </main>
 
-  <!-- Floating TV Icon Button -->
+  <!-- Floating TV Icon -->
   <button id="channelToggle"
-    class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 focus:outline-none">
+    class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-transform duration-300 focus:outline-none">
     <i class="fas fa-tv text-2xl"></i>
   </button>
 
-  <!-- Channel Selector Modal -->
-  <div id="channelModal"
-    class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-end z-50 opacity-0 pointer-events-none transition-opacity duration-300">
-    <div
-      class="bg-gray-800 w-full max-w-md rounded-t-2xl p-6 transform translate-y-full transition-transform duration-300">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold">Select Channel</h2>
-        <button id="closeModal" class="text-gray-400 hover:text-white text-xl">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <select id="channelSelect" class="w-full p-2 bg-gray-700 text-white rounded">
-        <option value="">Loading channels...</option>
-      </select>
+  <!-- Channel Sidebar -->
+  <div id="channelSidebar"
+    class="fixed top-0 right-0 h-full w-80 bg-gray-900 transform translate-x-full transition-transform duration-300 z-50 shadow-2xl">
+    <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+      <h2 class="text-lg font-bold">📺 Channel List</h2>
+      <button id="closeSidebar" class="text-gray-400 hover:text-white text-xl">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-4 overflow-y-auto h-[calc(100%-4rem)]">
+      <ul id="channelList" class="space-y-2"></ul>
     </div>
   </div>
 
@@ -65,16 +62,21 @@
       });
     }
 
-    function populateChannelSelect() {
-      const select = document.getElementById('channelSelect');
-      select.innerHTML = '<option value="">TAP HERE TO SELECT CHANNEL</option>';
+    function populateChannelList() {
+      const list = document.getElementById('channelList');
+      list.innerHTML = '';
+
       Object.keys(channels)
         .sort((a, b) => channels[a].name.localeCompare(channels[b].name))
         .forEach(key => {
-          const option = document.createElement('option');
-          option.value = key;
-          option.textContent = channels[key].name;
-          select.appendChild(option);
+          const li = document.createElement('li');
+          li.className = 'bg-gray-800 hover:bg-gray-700 cursor-pointer rounded-lg p-3 text-sm transition';
+          li.textContent = channels[key].name;
+          li.addEventListener('click', () => {
+            loadStream(key);
+            closeSidebar();
+          });
+          list.appendChild(li);
         });
     }
 
@@ -87,41 +89,24 @@
       }, 200);
     }
 
+    function closeSidebar() {
+      const sidebar = document.getElementById('channelSidebar');
+      sidebar.classList.add('translate-x-full');
+    }
+
     window.onload = function () {
-      const channelSelect = document.getElementById('channelSelect');
-      const channelModal = document.getElementById('channelModal');
-      const channelToggle = document.getElementById('channelToggle');
-      const closeModal = document.getElementById('closeModal');
-      const modalInner = channelModal.querySelector('div');
+      const toggle = document.getElementById('channelToggle');
+      const sidebar = document.getElementById('channelSidebar');
+      const closeBtn = document.getElementById('closeSidebar');
 
-      // Wait until channels.js is ready before populating
-      waitForChannels(populateChannelSelect);
+      waitForChannels(populateChannelList);
 
-      channelSelect.addEventListener('change', function () {
-        loadStream(this.value);
-        // Close modal after selecting a channel
-        modalInner.classList.add('translate-y-full');
-        setTimeout(() => {
-          channelModal.classList.add('opacity-0', 'pointer-events-none');
-        }, 300);
+      toggle.addEventListener('click', () => {
+        sidebar.classList.remove('translate-x-full');
       });
 
-      channelToggle.addEventListener('click', () => {
-        channelModal.classList.remove('opacity-0', 'pointer-events-none');
-        channelModal.classList.add('opacity-100', 'pointer-events-auto');
-        setTimeout(() => {
-          modalInner.classList.remove('translate-y-full');
-        }, 10);
-      });
-
-      closeModal.addEventListener('click', () => {
-        modalInner.classList.add('translate-y-full');
-        setTimeout(() => {
-          channelModal.classList.add('opacity-0', 'pointer-events-none');
-        }, 300);
-      });
+      closeBtn.addEventListener('click', closeSidebar);
     };
   </script>
-
 </body>
 </html>
