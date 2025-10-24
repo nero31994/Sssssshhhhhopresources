@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BASTIKWANG TV</title>
+
+  <!-- Tailwind CSS & Font Awesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- JWPlayer -->
+  <script src="https://123proj.netlify.app/jwpsrv.js"></script>
+  <script src="https://123proj.netlify.app/jwplayer.js"></script>
+  <script src="https://123proj.netlify.app/channels.js"></script>
+</head>
+
+<body class="bg-black text-white min-h-screen flex flex-col relative overflow-hidden">
+
+  <main class="flex-grow p-4">
+    <div class="w-full max-w-4xl mx-auto bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-8">
+      <div id="player" class="w-full aspect-video"></div>
+    </div>
+  </main>
+
+  <!-- Floating TV Icon Button -->
+  <button id="channelToggle"
+    class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 focus:outline-none">
+    <i class="fas fa-tv text-2xl"></i>
+  </button>
+
+  <!-- Channel Selector Modal -->
+  <div id="channelModal"
+    class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-end z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div
+      class="bg-gray-800 w-full max-w-md rounded-t-2xl p-6 transform translate-y-full transition-transform duration-300">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">Select Channel</h2>
+        <button id="closeModal" class="text-gray-400 hover:text-white text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <select id="channelSelect" class="w-full p-2 bg-gray-700 text-white rounded">
+        <option value="">TAP HERE TO SELECT CHANNEL</option>
+      </select>
+    </div>
+  </div>
+
+  <script>
+    jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
+
+    function loadStream(channelKey) {
+      const channel = channels[channelKey];
+      if (!channel) return;
+
+      jwplayer("player").setup({
+        file: channel.url,
+        type: channel.type,
+        drm: channel.type === 'mpd' ? {
+          clearkey: { keyId: channel.keyId, key: channel.key }
+        } : undefined,
+        width: "100%",
+        aspectratio: "16:9",
+        autostart: true
+      });
+    }
+
+    function populateChannelSelect() {
+      const select = document.getElementById('channelSelect');
+      Object.keys(channels).forEach(key => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = channels[key].name;
+        select.appendChild(option);
+      });
+    }
+
+    window.onload = function () {
+      populateChannelSelect();
+
+      const channelSelect = document.getElementById('channelSelect');
+      const channelModal = document.getElementById('channelModal');
+      const channelToggle = document.getElementById('channelToggle');
+      const closeModal = document.getElementById('closeModal');
+      const modalInner = channelModal.querySelector('div');
+
+      channelSelect.addEventListener('change', function () {
+        loadStream(this.value);
+        // Close modal after selecting a channel
+        channelModal.classList.remove('opacity-100', 'pointer-events-auto');
+        modalInner.classList.add('translate-y-full');
+        setTimeout(() => {
+          channelModal.classList.add('pointer-events-none', 'opacity-0');
+        }, 300);
+      });
+
+      channelToggle.addEventListener('click', () => {
+        channelModal.classList.remove('opacity-0', 'pointer-events-none');
+        channelModal.classList.add('opacity-100', 'pointer-events-auto');
+        setTimeout(() => {
+          modalInner.classList.remove('translate-y-full');
+        }, 10);
+      });
+
+      closeModal.addEventListener('click', () => {
+        modalInner.classList.add('translate-y-full');
+        setTimeout(() => {
+          channelModal.classList.add('opacity-0', 'pointer-events-none');
+        }, 300);
+      });
+    };
+  </script>
+
+</body>
+</html>
