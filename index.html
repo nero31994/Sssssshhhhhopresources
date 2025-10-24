@@ -32,13 +32,22 @@
   <!-- Channel Sidebar -->
   <div id="channelSidebar"
     class="fixed top-0 right-0 h-full w-80 bg-gray-900 transform translate-x-full transition-transform duration-300 z-50 shadow-2xl">
+    
     <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-      <h2 class="text-lg font-bold">📺 Channel List</h2>
+      <h2 class="text-lg font-bold">📺 Channels</h2>
       <button id="closeSidebar" class="text-gray-400 hover:text-white text-xl">
         <i class="fas fa-times"></i>
       </button>
     </div>
-    <div class="p-4 overflow-y-auto h-[calc(100%-4rem)]">
+
+    <!-- Search Bar -->
+    <div class="p-3 border-b border-gray-700">
+      <input id="searchInput" type="text" placeholder="Search channels..."
+        class="w-full p-2 rounded bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 outline-none">
+    </div>
+
+    <!-- Channel List -->
+    <div class="p-3 overflow-y-auto h-[calc(100%-7rem)]">
       <ul id="channelList" class="space-y-2"></ul>
     </div>
   </div>
@@ -70,8 +79,10 @@
         .sort((a, b) => channels[a].name.localeCompare(channels[b].name))
         .forEach(key => {
           const li = document.createElement('li');
-          li.className = 'bg-gray-800 hover:bg-gray-700 cursor-pointer rounded-lg p-3 text-sm transition';
+          li.className =
+            'bg-gray-800 hover:bg-gray-700 cursor-pointer rounded-lg p-3 text-sm transition';
           li.textContent = channels[key].name;
+          li.dataset.name = channels[key].name.toLowerCase();
           li.addEventListener('click', () => {
             loadStream(key);
             closeSidebar();
@@ -86,27 +97,39 @@
           clearInterval(check);
           callback();
         }
-      }, 200);
+      }, 300);
     }
 
     function closeSidebar() {
-      const sidebar = document.getElementById('channelSidebar');
-      sidebar.classList.add('translate-x-full');
+      document.getElementById('channelSidebar').classList.add('translate-x-full');
+    }
+
+    function openSidebar() {
+      document.getElementById('channelSidebar').classList.remove('translate-x-full');
     }
 
     window.onload = function () {
       const toggle = document.getElementById('channelToggle');
       const sidebar = document.getElementById('channelSidebar');
       const closeBtn = document.getElementById('closeSidebar');
+      const searchInput = document.getElementById('searchInput');
 
+      // Wait until channels.js is fully loaded
       waitForChannels(populateChannelList);
 
-      toggle.addEventListener('click', () => {
-        sidebar.classList.remove('translate-x-full');
-      });
-
+      toggle.addEventListener('click', openSidebar);
       closeBtn.addEventListener('click', closeSidebar);
+
+      // Channel Search Filter
+      searchInput.addEventListener('input', function () {
+        const query = this.value.toLowerCase();
+        const items = document.querySelectorAll('#channelList li');
+        items.forEach(li => {
+          li.style.display = li.dataset.name.includes(query) ? 'block' : 'none';
+        });
+      });
     };
   </script>
+
 </body>
 </html>
