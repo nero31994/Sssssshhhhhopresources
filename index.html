@@ -41,7 +41,7 @@
         </button>
       </div>
       <select id="channelSelect" class="w-full p-2 bg-gray-700 text-white rounded">
-        <option value="">TAP HERE TO SELECT CHANNEL</option>
+        <option value="">Loading channels...</option>
       </select>
     </div>
   </div>
@@ -67,30 +67,42 @@
 
     function populateChannelSelect() {
       const select = document.getElementById('channelSelect');
-      Object.keys(channels).forEach(key => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = channels[key].name;
-        select.appendChild(option);
-      });
+      select.innerHTML = '<option value="">TAP HERE TO SELECT CHANNEL</option>';
+      Object.keys(channels)
+        .sort((a, b) => channels[a].name.localeCompare(channels[b].name))
+        .forEach(key => {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = channels[key].name;
+          select.appendChild(option);
+        });
+    }
+
+    function waitForChannels(callback) {
+      const check = setInterval(() => {
+        if (typeof channels !== 'undefined' && Object.keys(channels).length > 0) {
+          clearInterval(check);
+          callback();
+        }
+      }, 200);
     }
 
     window.onload = function () {
-      populateChannelSelect();
-
       const channelSelect = document.getElementById('channelSelect');
       const channelModal = document.getElementById('channelModal');
       const channelToggle = document.getElementById('channelToggle');
       const closeModal = document.getElementById('closeModal');
       const modalInner = channelModal.querySelector('div');
 
+      // Wait until channels.js is ready before populating
+      waitForChannels(populateChannelSelect);
+
       channelSelect.addEventListener('change', function () {
         loadStream(this.value);
         // Close modal after selecting a channel
-        channelModal.classList.remove('opacity-100', 'pointer-events-auto');
         modalInner.classList.add('translate-y-full');
         setTimeout(() => {
-          channelModal.classList.add('pointer-events-none', 'opacity-0');
+          channelModal.classList.add('opacity-0', 'pointer-events-none');
         }, 300);
       });
 
