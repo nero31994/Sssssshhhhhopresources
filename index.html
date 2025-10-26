@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=0.6" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>BASTIKWANG TV</title>
 
   <!-- Tailwind & Lucide -->
@@ -15,39 +15,41 @@
   <script src="https://123proj.netlify.app/channels.js"></script>
 
   <style>
+    /* 🔒 Full lock: No scroll, no zoom, fixed layout */
     html, body {
       margin: 0;
       padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden !important; /* Prevent all scrollbars */
-      touch-action: none; /* Optional: block touch scroll gestures */
-      overscroll-behavior: none;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden !important;
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      touch-action: none;
+      overscroll-behavior: none;
+      background-color: black;
     }
 
-    /* Pulsing glow for TV icon */
-    @keyframes bluePulse {
-      0%,100%{filter:drop-shadow(0 0 6px rgba(59,130,246,.7));transform:scale(1);}
-      50%{filter:drop-shadow(0 0 16px rgba(59,130,246,1));transform:scale(1.1);}
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
     }
-    @keyframes greenPulse {
-      0%,100%{filter:drop-shadow(0 0 6px rgba(34,197,94,.7));transform:scale(1);}
-      50%{filter:drop-shadow(0 0 16px rgba(34,197,94,1));transform:scale(1.1);}
-    }
-    .pulse-blue { animation: bluePulse 2.5s infinite ease-in-out; }
-    .pulse-green { animation: greenPulse 2.5s infinite ease-in-out; }
 
-    /* Player background */
     #playerContainer {
       width: 100%;
+      height: 100%;
       max-width: 1280px;
       aspect-ratio: 16/9;
-      margin: auto;
       position: relative;
-      overflow: hidden;
       border-radius: 1rem;
+      overflow: hidden;
       background: url('https://media.tenor.com/IemnuHk4r_4AAAAM/no-signal-stand-by.gif') center/cover no-repeat;
     }
 
@@ -59,70 +61,62 @@
       z-index: 2;
     }
 
-    @media (orientation: portrait) {
-      #playerContainer { max-width: 100%; }
-      #channelSidebar { width: 100%; }
-    }
-
-    @media (orientation: landscape) {
-      #playerContainer { max-width: 85%; }
-      #channelSidebar { width: 22rem; }
-    }
-
-    /* LIVE badge blink + red dot */
-    @keyframes blinkLive {
-      0%,100% { opacity: 1; text-shadow: 0 0 8px rgba(239,68,68,.9); }
-      50% { opacity: .5; text-shadow: 0 0 16px rgba(239,68,68,.7); }
-    }
-    @keyframes blinkDot {
-      0%,100% { opacity: 1; }
-      50% { opacity: 0.2; }
-    }
-    #liveBadge {
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity .4s, transform .4s;
-    }
-    #liveBadge.show {
-      opacity: 1;
-      transform: translateY(0);
-      animation: blinkLive 1.2s infinite ease-in-out;
-    }
-    #liveDot {
-      width: 8px;
-      height: 8px;
-      background-color: #ef4444;
-      border-radius: 50%;
-      margin-right: 6px;
-      animation: blinkDot 1s infinite ease-in-out;
-    }
-
-    /* D-pad focus */
-    .focusable:focus {
-      outline: none;
-      background-color: rgba(59,130,246,0.4)!important;
-      transform: scale(1.05);
-    }
-
-    /* Make sidebar non-scrollable and fixed */
+    /* Sidebar: fixed and scrolls only internally */
     #channelSidebar {
-      overflow: hidden !important;
+      position: fixed;
+      top: 0;
+      right: 0;
       height: 100vh;
+      width: 22rem;
+      max-width: 100%;
+      background: rgba(17,17,17,0.7);
+      backdrop-filter: blur(12px);
+      transform: translateX(100%);
+      transition: transform 0.5s ease;
+      z-index: 40;
+      border-left: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden !important;
     }
 
-    /* Channel list inside sidebar scrolls internally only */
-    #channelList {
-      overflow-y: auto;
-      max-height: calc(100vh - 8rem);
+    #channelSidebar.open {
+      transform: translateX(0);
     }
+
+    #channelList {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0.75rem;
+    }
+
+    /* Hide scrollbars completely */
+    *::-webkit-scrollbar { display: none; }
+    * { scrollbar-width: none; -ms-overflow-style: none; }
+
+    /* Glow animations */
+    @keyframes bluePulse { 0%,100%{filter:drop-shadow(0 0 6px rgba(59,130,246,.7));transform:scale(1);}50%{filter:drop-shadow(0 0 16px rgba(59,130,246,1));transform:scale(1.1);} }
+    @keyframes greenPulse { 0%,100%{filter:drop-shadow(0 0 6px rgba(34,197,94,.7));transform:scale(1);}50%{filter:drop-shadow(0 0 16px rgba(34,197,94,1));transform:scale(1.1);} }
+    .pulse-blue { animation: bluePulse 2.5s infinite ease-in-out; }
+    .pulse-green { animation: greenPulse 2.5s infinite ease-in-out; }
+
+    /* LIVE badge */
+    @keyframes blinkLive {0%,100%{opacity:1;}50%{opacity:0.5;}}
+    @keyframes blinkDot {0%,100%{opacity:1;}50%{opacity:0.2;}}
+    #liveBadge.show { animation: blinkLive 1.2s infinite ease-in-out; opacity:1!important; transform:translateY(0)!important; }
+    #liveDot { width:8px; height:8px; background:#ef4444; border-radius:50%; margin-right:6px; animation:blinkDot 1s infinite ease-in-out; }
+
+    /* Focus */
+    .focusable:focus { outline:none; background-color:rgba(59,130,246,0.4)!important; transform:scale(1.05); }
   </style>
 </head>
 
-<body class="bg-black text-white flex flex-col min-h-screen overflow-hidden">
+<body class="text-white flex flex-col">
 
   <!-- Player -->
-  <main class="flex-grow flex flex-col items-center justify-center p-2 md:p-4">
-    <div id="playerContainer" class="shadow-lg"><div id="player"></div></div>
+  <main>
+    <div id="playerContainer"><div id="player"></div></div>
   </main>
 
   <!-- Floating TV Icon + LIVE Badge -->
@@ -131,21 +125,19 @@
       class="text-blue-400 hover:scale-110 transition-transform duration-300 focus:outline-none">
       <i data-lucide="tv" class="w-10 h-10 pulse-blue" id="tvIcon"></i>
     </button>
-    <div id="liveBadge" class="flex items-center mt-1 bg-black/60 px-2 py-0.5 rounded-md border border-red-500/60 text-sm font-bold text-red-500">
+    <div id="liveBadge" class="flex items-center mt-1 bg-black/60 px-2 py-0.5 rounded-md border border-red-500/60 text-sm font-bold text-red-500 opacity-0 translate-y-2 transition">
       <span id="liveDot"></span>LIVE&nbsp;NOW
     </div>
   </div>
 
   <!-- Sidebar -->
-  <div id="channelSidebar"
-    class="fixed top-0 right-0 h-full w-80 md:w-96 bg-gray-900/30 backdrop-blur-xl transform translate-x-full transition-transform duration-500 z-40 shadow-2xl border-l border-white/10 flex flex-col">
-
-    <div class="p-4 border-b border-white/10 flex justify-between items-center bg-gray-900/20 backdrop-blur-md sticky top-0 z-20">
+  <div id="channelSidebar">
+    <div class="p-4 border-b border-white/10 flex justify-between items-center bg-gray-900/30 sticky top-0 z-20">
       <h2 class="text-lg font-bold flex items-center gap-2"><i data-lucide="tv" class="w-5 h-5 text-blue-400"></i> Channels</h2>
       <button id="closeSidebar" tabindex="0" class="text-gray-300 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
     </div>
 
-    <div class="p-3 border-b border-white/10 bg-gray-900/20 backdrop-blur-md sticky top-[4rem] z-10">
+    <div class="p-3 border-b border-white/10 bg-gray-900/30 sticky top-[4rem] z-10">
       <div class="flex items-center bg-white/10 rounded-lg px-2">
         <i data-lucide="search" class="w-4 h-4 text-gray-300"></i>
         <input id="searchInput" type="text" placeholder="Search channels..."
@@ -153,17 +145,16 @@
       </div>
     </div>
 
-    <div class="flex-1 p-3 overflow-y-auto">
-      <ul id="channelList" class="space-y-3"></ul>
-    </div>
+    <ul id="channelList" class="space-y-3"></ul>
   </div>
 
   <script>
     lucide.createIcons();
-    jwplayer.key='XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
-    const defaultLogo="https://cdn-icons-png.flaticon.com/512/3208/3208758.png";
-    const tvIcon=document.getElementById('tvIcon');
-    const liveBadge=document.getElementById('liveBadge');
+    jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
+    const defaultLogo = "https://cdn-icons-png.flaticon.com/512/3208/3208758.png";
+    const tvIcon = document.getElementById('tvIcon');
+    const liveBadge = document.getElementById('liveBadge');
+    const sidebar = document.getElementById('channelSidebar');
 
     function loadStream(k){
       const c=channels[k]; if(!c)return;
@@ -181,8 +172,9 @@
       player.on("complete",resetUI);
       player.on("error",resetUI);
     }
+
     function resetUI(){
-      document.getElementById("playerContainer").style.background=
+      document.getElementById("playerContainer").style.background =
         "url('https://images.squarespace-cdn.com/content/v1/5cacee5b52395863f12e75de/1569001200148-SQ2A3EHDQR81JTLOH8DT/SYY_02_02_INITIALIZE_Loop_Screen.gif?format=1500w') center/cover no-repeat";
       tvIcon.classList.remove("text-green-400","pulse-green");
       tvIcon.classList.add("text-blue-400","pulse-blue");
@@ -194,11 +186,15 @@
       Object.keys(channels).sort((a,b)=>channels[a].name.localeCompare(channels[b].name)).forEach(k=>{
         const c=channels[k];
         const li=document.createElement('li');
-        li.tabIndex=0; li.className='focusable flex items-center space-x-3 bg-white/10 hover:bg-white/20 cursor-pointer rounded-2xl p-3 transition backdrop-blur-md shadow-sm hover:shadow-lg';
+        li.tabIndex=0;
+        li.className='focusable flex items-center space-x-3 bg-white/10 hover:bg-white/20 cursor-pointer rounded-2xl p-3 transition backdrop-blur-md shadow-sm hover:shadow-lg';
         li.dataset.name=c.name.toLowerCase();
-        const img=document.createElement('img'); img.src=c.logo||defaultLogo; img.alt=c.name;
+        const img=document.createElement('img');
+        img.src=c.logo||defaultLogo;
         img.className='w-10 h-10 rounded-xl object-cover border border-white/20 flex-shrink-0';
-        const span=document.createElement('span'); span.textContent=c.name; span.className='text-sm font-medium text-white truncate';
+        const span=document.createElement('span');
+        span.textContent=c.name;
+        span.className='text-sm font-medium text-white truncate';
         li.append(img,span);
         li.addEventListener('click',()=>{loadStream(k);closeSidebar();});
         list.append(li);
@@ -214,14 +210,10 @@
       },200);
     }
 
-    function openSidebar(){
-      const s=document.getElementById('channelSidebar');
-      s.classList.remove('translate-x-full');
-      setTimeout(()=>document.querySelector('#channelList li')?.focus(),400);
-    }
-    function closeSidebar(){document.getElementById('channelSidebar').classList.add('translate-x-full');}
+    function openSidebar(){ sidebar.classList.add('open'); }
+    function closeSidebar(){ sidebar.classList.remove('open'); }
 
-    // D-pad support
+    // Keyboard D-Pad
     let idx=0;
     document.addEventListener('keydown',e=>{
       const items=[...document.querySelectorAll('#channelList li')];
@@ -233,78 +225,13 @@
     });
 
     window.onload=()=>{
-      const toggle=document.getElementById('channelToggle');
-      const closeBtn=document.getElementById('closeSidebar');
-      const search=document.getElementById('searchInput');
-      waitForChannels(populateList);
-      toggle.addEventListener('click',openSidebar);
-      closeBtn.addEventListener('click',closeSidebar);
-      search.addEventListener('input',function(){
+      document.getElementById('channelToggle').onclick=openSidebar;
+      document.getElementById('closeSidebar').onclick=closeSidebar;
+      document.getElementById('searchInput').oninput=function(){
         const q=this.value.toLowerCase();
         document.querySelectorAll('#channelList li').forEach(li=>li.style.display=li.dataset.name.includes(q)?'flex':'none');
-      });
-      window.addEventListener("orientationchange",()=>setTimeout(()=>jwplayer("player").resize("100%","100%"),300));
-    };
-  </script>
-</body>
-</html>      liveBadge.classList.remove("show");
-    }
-
-    function populateList(){
-      const list=document.getElementById('channelList'); list.innerHTML='';
-      Object.keys(channels).sort((a,b)=>channels[a].name.localeCompare(channels[b].name)).forEach(k=>{
-        const c=channels[k];
-        const li=document.createElement('li');
-        li.tabIndex=0; li.className='focusable flex items-center space-x-3 bg-white/10 hover:bg-white/20 cursor-pointer rounded-2xl p-3 transition backdrop-blur-md shadow-sm hover:shadow-lg';
-        li.dataset.name=c.name.toLowerCase();
-        const img=document.createElement('img'); img.src=c.logo||defaultLogo; img.alt=c.name;
-        img.className='w-10 h-10 rounded-xl object-cover border border-white/20 flex-shrink-0';
-        const span=document.createElement('span'); span.textContent=c.name; span.className='text-sm font-medium text-white truncate';
-        li.append(img,span);
-        li.addEventListener('click',()=>{loadStream(k);closeSidebar();});
-        list.append(li);
-      });
-    }
-
-    function waitForChannels(cb){
-      const check=setInterval(()=>{
-        if(typeof channels!=='undefined'&&Object.keys(channels).length>0){
-          clearInterval(check); cb();
-          setTimeout(()=>openSidebar(),3000);
-        }
-      },200);
-    }
-
-    function openSidebar(){
-      const s=document.getElementById('channelSidebar');
-      s.classList.remove('translate-x-full');
-      setTimeout(()=>document.querySelector('#channelList li')?.focus(),400);
-    }
-    function closeSidebar(){document.getElementById('channelSidebar').classList.add('translate-x-full');}
-
-    // D-pad support
-    let idx=0;
-    document.addEventListener('keydown',e=>{
-      const items=[...document.querySelectorAll('#channelList li')];
-      if(!items.length)return;
-      if(e.key==='ArrowDown'){idx=(idx+1)%items.length;items[idx].focus();}
-      else if(e.key==='ArrowUp'){idx=(idx-1+items.length)%items.length;items[idx].focus();}
-      else if(e.key==='Enter'){if(document.activeElement===document.getElementById('channelToggle'))openSidebar();else document.activeElement.click();}
-      else if(e.key==='ArrowLeft')closeSidebar();
-    });
-
-    window.onload=()=>{
-      const toggle=document.getElementById('channelToggle');
-      const closeBtn=document.getElementById('closeSidebar');
-      const search=document.getElementById('searchInput');
+      };
       waitForChannels(populateList);
-      toggle.addEventListener('click',openSidebar);
-      closeBtn.addEventListener('click',closeSidebar);
-      search.addEventListener('input',function(){
-        const q=this.value.toLowerCase();
-        document.querySelectorAll('#channelList li').forEach(li=>li.style.display=li.dataset.name.includes(q)?'flex':'none');
-      });
-      window.addEventListener("orientationchange",()=>setTimeout(()=>jwplayer("player").resize("100%","100%"),300));
     };
   </script>
 </body>
