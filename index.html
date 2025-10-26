@@ -1,238 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=0.6, user-scalable=no" />
-  <title>BASTIKWANG TV</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <title>BASTIKWANG TV — Glassmorphism List</title>
 
-  <!-- Tailwind & Lucide -->
+  <!-- Tailwind (for utility classes) & Lucide -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- JWPlayer -->
+  <!-- JWPlayer + channels (keep your real sources) -->
   <script src="https://123proj.netlify.app/jwpsrv.js"></script>
   <script src="https://123proj.netlify.app/jwplayer.js"></script>
   <script src="https://123proj.netlify.app/channels.js"></script>
 
   <style>
-    /* 🔒 Full lock: No scroll, no zoom, fixed layout */
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden !important;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      touch-action: none;
-      overscroll-behavior: none;
-      background-color: black;
+    /* ------------------------------
+       Global: lock viewport & hide page scroll
+       ------------------------------ */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{
+      width:100vw;height:100vh;margin:0;padding:0;
+      overflow:hidden !important; /* no page scroll */
+      background:#060608; color:#eee;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      position:fixed; inset:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
 
-    main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
+    /* main centered player area */
+    main{display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:1rem;overflow:hidden}
+
+    /* player container: keeps 16:9 and centered */
+    #playerContainer{
+      width:100%;max-width:1280px;aspect-ratio:16/9;border-radius:1rem;overflow:hidden;position:relative;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.6));
+      box-shadow:0 10px 40px rgba(0,0,0,0.6);
+      background-image:url('https://media.tenor.com/IemnuHk4r_4AAAAM/no-signal-stand-by.gif');
+      background-position:center;background-size:cover;background-repeat:no-repeat;
     }
+    #player{position:absolute;inset:0;width:100%;height:100%;z-index:2}
 
-    #playerContainer {
-      width: 100%;
-      height: 100%;
-      max-width: 1280px;
-      aspect-ratio: 16/9;
-      position: relative;
-      border-radius: 1rem;
-      overflow: hidden;
-      background: url('https://media.tenor.com/IemnuHk4r_4AAAAM/no-signal-stand-by.gif') center/cover no-repeat;
+    /* floating controls */
+    .float-btn{position:fixed;right:1.25rem;bottom:1.25rem;z-index:60;display:flex;flex-direction:column;gap:.5rem;align-items:center}
+    .icon-btn{background:transparent;border:0;color:#60a5fa;padding:.25rem;border-radius:.5rem;backdrop-filter:blur(6px);cursor:pointer}
+    .icon-btn:focus{outline:2px solid rgba(96,165,250,0.25);transform:scale(1.03)}
+
+    /* live badge */
+    #liveBadge{opacity:0;transform:translateY(.5rem);transition:opacity .3s,transform .3s}
+    #liveBadge.show{opacity:1;transform:translateY(0)}
+    .live-dot-global{width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,0.8);display:inline-block;margin-right:.5rem;animation:pulse 1s infinite alternate}
+    @keyframes pulse{from{transform:scale(.85);opacity:.6}to{transform:scale(1.12);opacity:1}}
+
+    /* ------------------------------
+       Sidebar (glassmorphism)
+       ------------------------------ */
+    #channelSidebar{
+      position:fixed;top:0;right:0;height:100vh;width:22.5rem;max-width:100%;
+      transform:translateX(110%);transition:transform .45s cubic-bezier(.2,.9,.2,1);
+      z-index:70;display:flex;flex-direction:column;overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-left:1px solid rgba(255,255,255,0.06);
+      backdrop-filter:blur(12px) saturate(120%);
+      box-shadow:-10px 30px 60px rgba(2,6,23,0.6);
     }
+    #channelSidebar.open{transform:translateX(0)}
 
-    #player {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
+    /* sidebar header */
+    .sidebar-header{padding:1rem;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+    .sidebar-header h2{font-size:1rem;font-weight:700;display:flex;gap:.5rem;align-items:center;color:#e6eef8}
+
+    /* search bar */
+    .search-wrap{padding:.7rem;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:.5rem}
+    .search-input{flex:1;padding:.5rem .6rem;border-radius:.5rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:#e8eef8;outline:none}
+    .search-input::placeholder{color:rgba(255,255,255,0.35)}
+
+    /* list container: internal scrolling only */
+    #channelListWrap{flex:1;overflow:hidden;padding:.75rem}
+    #channelList{display:flex;flex-direction:column;gap:.45rem;overflow-y:auto;padding-right:.5rem}
+    /* hide scrollbars */
+    #channelList::-webkit-scrollbar{width:0;height:0}
+    #channelList{scrollbar-width:none;-ms-overflow-style:none}
+
+    /* channel item (list view) */
+    .channel-item{
+      display:flex;align-items:center;gap:.75rem;padding:.6rem;border-radius:.75rem;
+      background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.16));
+      border:1px solid rgba(255,255,255,0.03);cursor:pointer;
+      transition:transform .16s,box-shadow .16s,background .16s;
     }
+    .channel-item:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.55)}
+    .channel-item:focus{outline:none;box-shadow:0 0 0 3px rgba(96,165,250,0.12);transform:scale(1.02)}
+    .ch-logo{width:56px;height:40px;border-radius:.5rem;object-fit:cover;border:1px solid rgba(255,255,255,0.05);flex-shrink:0}
+    .ch-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .ch-name{font-size:.98rem;font-weight:600;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ch-sub{font-size:.78rem;color:rgba(255,255,255,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    /* Sidebar: fixed and scrolls only internally */
-    #channelSidebar {
-      position: fixed;
-      top: 0;
-      right: 0;
-      height: 100vh;
-      width: 22rem;
-      max-width: 100%;
-      background: rgba(17,17,17,0.7);
-      backdrop-filter: blur(12px);
-      transform: translateX(100%);
-      transition: transform 0.5s ease;
-      z-index: 40;
-      border-left: 1px solid rgba(255,255,255,0.1);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden !important;
+    /* live dot inside list */
+    .live-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:.5rem;box-shadow:0 0 6px rgba(239,68,68,0.85);animation:pulse .9s infinite alternate;flex-shrink:0}
+
+    /* faded non-matches */
+    .fade-out{opacity:.18;transform:scale(.995);filter:grayscale(.25)}
+
+    /* highlight mark */
+    mark.search-hit{background:#ff4757;color:white;padding:0 .15rem;border-radius:.15rem}
+
+    /* small util */
+    .muted{color:rgba(255,255,255,0.45);font-size:.82rem}
+
+    /* responsive tweaks */
+    @media (max-width:640px){
+      #channelSidebar{width:100vw}
+      .ch-logo{width:46px;height:34px}
+      #playerContainer{max-width:100%}
     }
-
-    #channelSidebar.open {
-      transform: translateX(0);
-    }
-
-    #channelList {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 0.75rem;
-    }
-
-    /* Hide scrollbars completely */
-    *::-webkit-scrollbar { display: none; }
-    * { scrollbar-width: none; -ms-overflow-style: none; }
-
-    /* Glow animations */
-    @keyframes bluePulse { 0%,100%{filter:drop-shadow(0 0 6px rgba(59,130,246,.7));transform:scale(1);}50%{filter:drop-shadow(0 0 16px rgba(59,130,246,1));transform:scale(1.1);} }
-    @keyframes greenPulse { 0%,100%{filter:drop-shadow(0 0 6px rgba(34,197,94,.7));transform:scale(1);}50%{filter:drop-shadow(0 0 16px rgba(34,197,94,1));transform:scale(1.1);} }
-    .pulse-blue { animation: bluePulse 2.5s infinite ease-in-out; }
-    .pulse-green { animation: greenPulse 2.5s infinite ease-in-out; }
-
-    /* LIVE badge */
-    @keyframes blinkLive {0%,100%{opacity:1;}50%{opacity:0.5;}}
-    @keyframes blinkDot {0%,100%{opacity:1;}50%{opacity:0.2;}}
-    #liveBadge.show { animation: blinkLive 1.2s infinite ease-in-out; opacity:1!important; transform:translateY(0)!important; }
-    #liveDot { width:8px; height:8px; background:#ef4444; border-radius:50%; margin-right:6px; animation:blinkDot 1s infinite ease-in-out; }
-
-    /* Focus */
-    .focusable:focus { outline:none; background-color:rgba(59,130,246,0.4)!important; transform:scale(1.05); }
   </style>
 </head>
 
-<body class="text-white flex flex-col">
-
-  <!-- Player -->
+<body>
   <main>
-    <div id="playerContainer"><div id="player"></div></div>
+    <div id="playerContainer" aria-label="Video player">
+      <div id="player"></div>
+    </div>
   </main>
 
-  <!-- Floating TV Icon + LIVE Badge -->
-  <div class="fixed bottom-6 right-6 flex flex-col items-center z-50">
-    <button id="channelToggle" tabindex="0"
-      class="text-blue-400 hover:scale-110 transition-transform duration-300 focus:outline-none">
-      <i data-lucide="tv" class="w-10 h-10 pulse-blue" id="tvIcon"></i>
+  <!-- floating control -->
+  <div class="float-btn" role="region" aria-label="Controls">
+    <button id="channelToggle" class="icon-btn" aria-label="Open channels" tabindex="0">
+      <i data-lucide="tv" class="w-10 h-10 text-sky-400"></i>
     </button>
-    <div id="liveBadge" class="flex items-center mt-1 bg-black/60 px-2 py-0.5 rounded-md border border-red-500/60 text-sm font-bold text-red-500 opacity-0 translate-y-2 transition">
-      <span id="liveDot"></span>LIVE&nbsp;NOW
+    <div id="liveBadge" class="px-3 py-1 rounded-md bg-black/50 text-sm font-semibold muted" aria-hidden="true">
+      <span class="live-dot-global" aria-hidden="true"></span>LIVE NOW
     </div>
   </div>
 
-  <!-- Sidebar -->
-  <div id="channelSidebar">
-    <div class="p-4 border-b border-white/10 flex justify-between items-center bg-gray-900/30 sticky top-0 z-20">
-      <h2 class="text-lg font-bold flex items-center gap-2"><i data-lucide="tv" class="w-5 h-5 text-blue-400"></i> Channels</h2>
-      <button id="closeSidebar" tabindex="0" class="text-gray-300 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
-    </div>
-
-    <div class="p-3 border-b border-white/10 bg-gray-900/30 sticky top-[4rem] z-10">
-      <div class="flex items-center bg-white/10 rounded-lg px-2">
-        <i data-lucide="search" class="w-4 h-4 text-gray-300"></i>
-        <input id="searchInput" type="text" placeholder="Search channels..."
-          class="w-full p-2 bg-transparent text-white placeholder-gray-400 focus:outline-none focus:ring-0">
+  <!-- Sidebar (glassmorphism) -->
+  <aside id="channelSidebar" aria-hidden="true" role="dialog" aria-label="Channel list">
+    <div class="sidebar-header">
+      <h2><i data-lucide="tv" class="w-5 h-5 text-sky-400"></i> Channels</h2>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button id="closeSidebar" class="icon-btn" aria-label="Close channels" tabindex="0"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
     </div>
 
-    <ul id="channelList" class="space-y-3"></ul>
-  </div>
+    <div class="search-wrap">
+      <i data-lucide="search" class="w-4 h-4 text-gray-300"></i>
+      <input id="searchInput" class="search-input" type="search" placeholder="Search channels..." aria-label="Search channels">
+    </div>
+
+    <div id="channelListWrap">
+      <div id="channelList" role="list" aria-label="Channels list"></div>
+    </div>
+  </aside>
 
   <script>
-    lucide.createIcons();
-    jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
-    const defaultLogo = "https://cdn-icons-png.flaticon.com/512/3208/3208758.png";
-    const tvIcon = document.getElementById('tvIcon');
-    const liveBadge = document.getElementById('liveBadge');
-    const sidebar = document.getElementById('channelSidebar');
+  /*******************************
+   * Initialization & utilities
+   *******************************/
+  lucide.createIcons && lucide.createIcons();
+  jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
+  const DEFAULT_LOGO = 'https://cdn-icons-png.flaticon.com/512/3208/3208758.png';
 
-    function loadStream(k){
-      const c=channels[k]; if(!c)return;
-      const player=jwplayer("player").setup({
-        file:c.url,type:c.type,
-        drm:c.type==='mpd'?{clearkey:{keyId:c.keyId,key:c.key}}:undefined,
-        width:"100%",aspectratio:"16:9",autostart:true
+  const sidebar = document.getElementById('channelSidebar');
+  const toggleBtn = document.getElementById('channelToggle');
+  const closeBtn = document.getElementById('closeSidebar');
+  const listEl = document.getElementById('channelList');
+  const searchInput = document.getElementById('searchInput');
+  const liveBadge = document.getElementById('liveBadge');
+
+  let focusedIndex = 0;
+  let visibleItems = []; // currently visible channel DOM nodes
+  let channelKeys = [];   // keys order
+  let observerImgs;       // lazy load observer
+
+  /*******************************
+   * Helpers
+   *******************************/
+  const isLive = (c) => (c.live === true) || (typeof c.name === 'string' && /live/i.test(c.name));
+  const saveLast = (key) => localStorage.setItem('nxb_last_channel', key || '');
+  const loadLast = () => localStorage.getItem('nxb_last_channel') || '';
+
+  function openSidebar(){ sidebar.classList.add('open'); sidebar.setAttribute('aria-hidden','false'); setTimeout(()=>{ focusListItem(0) }, 420) }
+  function closeSidebar(){ sidebar.classList.remove('open'); sidebar.setAttribute('aria-hidden','true'); toggleBtn.focus(); }
+
+  function focusListItem(i){
+    visibleItems = [...document.querySelectorAll('#channelList .channel-item:not(.hidden)')];
+    if(!visibleItems.length) return;
+    focusedIndex = Math.max(0, Math.min(i, visibleItems.length - 1));
+    const el = visibleItems[focusedIndex];
+    el.focus();
+    // ensure visible in sidebar scroll
+    el.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+
+  /*******************************
+   * Build channel list (list view)
+   *******************************/
+  function populateList(){
+    listEl.innerHTML = '';
+    if(typeof channels === 'undefined' || !Object.keys(channels).length) return;
+
+    channelKeys = Object.keys(channels).sort((a,b) => channels[a].name.localeCompare(channels[b].name));
+
+    for(const k of channelKeys){
+      const c = channels[k];
+      const li = document.createElement('div');
+      li.className = 'channel-item';
+      li.tabIndex = 0;
+      li.dataset.key = k;
+      li.role = 'listitem';
+
+      // logo (lazy)
+      const img = document.createElement('img');
+      img.className = 'ch-logo lazy';
+      img.alt = c.name || k;
+      img.dataset.src = c.logo || DEFAULT_LOGO;
+      img.src = ''; // set later via intersection observer
+
+      // meta
+      const meta = document.createElement('div'); meta.className = 'ch-meta';
+      const titleRow = document.createElement('div'); titleRow.style.display='flex'; titleRow.style.alignItems='center';
+      // live dot (if live)
+      if(isLive(c)){
+        const liveDot = document.createElement('span');
+        liveDot.className = 'live-dot';
+        liveDot.setAttribute('aria-hidden','true');
+        titleRow.appendChild(liveDot);
+      } else {
+        // small spacer to align
+        const spacer = document.createElement('span'); spacer.style.width='12px'; titleRow.appendChild(spacer);
+      }
+
+      const name = document.createElement('div'); name.className='ch-name'; name.textContent = c.name || k;
+      titleRow.appendChild(name);
+
+      const sub = document.createElement('div'); sub.className='ch-sub muted'; sub.textContent = c.type ? c.type.toUpperCase() : '';
+
+      meta.appendChild(titleRow);
+      meta.appendChild(sub);
+
+      li.appendChild(img);
+      li.appendChild(meta);
+
+      // click handler: load stream & close
+      li.addEventListener('click', ()=> {
+        loadStream(k);
+        saveLast(k);
+        closeSidebar(); // auto-close after selection
       });
-      player.on("play",()=>{
-        document.getElementById("playerContainer").style.background="none";
-        tvIcon.classList.remove("text-blue-400","pulse-blue");
-        tvIcon.classList.add("text-green-400","pulse-green");
-        liveBadge.classList.add("show");
+
+      // keyboard: Enter -> click (handled globally too)
+      li.addEventListener('keydown', (ev) => {
+        if(ev.key === 'Enter'){ ev.preventDefault(); li.click(); }
       });
-      player.on("complete",resetUI);
-      player.on("error",resetUI);
+
+      listEl.appendChild(li);
     }
 
-    function resetUI(){
-      document.getElementById("playerContainer").style.background =
-        "url('https://images.squarespace-cdn.com/content/v1/5cacee5b52395863f12e75de/1569001200148-SQ2A3EHDQR81JTLOH8DT/SYY_02_02_INITIALIZE_Loop_Screen.gif?format=1500w') center/cover no-repeat";
-      tvIcon.classList.remove("text-green-400","pulse-green");
-      tvIcon.classList.add("text-blue-400","pulse-blue");
-      liveBadge.classList.remove("show");
+    // setup lazy-load observer for logos
+    setupLazyLoad();
+  }
+
+  /*******************************
+   * Lazy-load logos
+   *******************************/
+  function setupLazyLoad(){
+    const imgs = document.querySelectorAll('img.lazy');
+    if('IntersectionObserver' in window){
+      observerImgs && observerImgs.disconnect();
+      observerImgs = new IntersectionObserver((entries, obs) => {
+        entries.forEach(e => {
+          if(e.isIntersecting){
+            const img = e.target;
+            img.src = img.dataset.src || DEFAULT_LOGO;
+            img.classList.remove('lazy');
+            obs.unobserve(img);
+          }
+        });
+      },{root: document.getElementById('channelList'),rootMargin:'200px'});
+      imgs.forEach(i => observerImgs.observe(i));
+    } else {
+      // fallback: load all
+      imgs.forEach(i => i.src = i.dataset.src || DEFAULT_LOGO);
     }
+  }
 
-    function populateList(){
-      const list=document.getElementById('channelList'); list.innerHTML='';
-      Object.keys(channels).sort((a,b)=>channels[a].name.localeCompare(channels[b].name)).forEach(k=>{
-        const c=channels[k];
-        const li=document.createElement('li');
-        li.tabIndex=0;
-        li.className='focusable flex items-center space-x-3 bg-white/10 hover:bg-white/20 cursor-pointer rounded-2xl p-3 transition backdrop-blur-md shadow-sm hover:shadow-lg';
-        li.dataset.name=c.name.toLowerCase();
-        const img=document.createElement('img');
-        img.src=c.logo||defaultLogo;
-        img.className='w-10 h-10 rounded-xl object-cover border border-white/20 flex-shrink-0';
-        const span=document.createElement('span');
-        span.textContent=c.name;
-        span.className='text-sm font-medium text-white truncate';
-        li.append(img,span);
-        li.addEventListener('click',()=>{loadStream(k);closeSidebar();});
-        list.append(li);
-      });
-    }
+  /*******************************
+   * Search: highlight + fade others
+   *******************************/
+  function highlightSearch(q){
+    const needle = (q || '').trim().toLowerCase();
+    const items = [...document.querySelectorAll('#channelList .channel-item')];
+    items.forEach(item => {
+      const key = item.dataset.key;
+      const name = (channels[key].name || '').toLowerCase();
+      // clear previous marks
+      const nameEl = item.querySelector('.ch-name');
+      nameEl.innerHTML = channels[key].name || key;
 
-    function waitForChannels(cb){
-      const check=setInterval(()=>{
-        if(typeof channels!=='undefined'&&Object.keys(channels).length>0){
-          clearInterval(check); cb();
-          setTimeout(()=>openSidebar(),3000);
-        }
-      },200);
-    }
-
-    function openSidebar(){ sidebar.classList.add('open'); }
-    function closeSidebar(){ sidebar.classList.remove('open'); }
-
-    // Keyboard D-Pad
-    let idx=0;
-    document.addEventListener('keydown',e=>{
-      const items=[...document.querySelectorAll('#channelList li')];
-      if(!items.length)return;
-      if(e.key==='ArrowDown'){idx=(idx+1)%items.length;items[idx].focus();}
-      else if(e.key==='ArrowUp'){idx=(idx-1+items.length)%items.length;items[idx].focus();}
-      else if(e.key==='Enter'){if(document.activeElement===document.getElementById('channelToggle'))openSidebar();else document.activeElement.click();}
-      else if(e.key==='ArrowLeft')closeSidebar();
+      if(!needle){
+        item.classList.remove('hidden','fade-out');
+        item.style.display = 'flex';
+      } else if(name.includes(needle)){
+        // highlight matches
+        const regex = new RegExp(`(${escapeRegExp(needle)})`, 'ig');
+        nameEl.innerHTML = (channels[key].name || key).replace(regex, '<mark class="search-hit">$1</mark>');
+        item.classList.remove('fade-out');
+        item.style.display = 'flex';
+      } else {
+        // fade-out non-matches (not completely hide so layout stable)
+        item.classList.add('fade-out');
+        item.style.display = 'flex';
+      }
     });
+    // reset focused index if current focused item is faded
+    visibleItems = [...document.querySelectorAll('#channelList .channel-item:not(.hidden)')];
+    focusListItem(0);
+  }
 
-    window.onload=()=>{
-      document.getElementById('channelToggle').onclick=openSidebar;
-      document.getElementById('closeSidebar').onclick=closeSidebar;
-      document.getElementById('searchInput').oninput=function(){
-        const q=this.value.toLowerCase();
-        document.querySelectorAll('#channelList li').forEach(li=>li.style.display=li.dataset.name.includes(q)?'flex':'none');
-      };
-      waitForChannels(populateList);
-    };
+  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  /*******************************
+   * Player logic
+   *******************************/
+  let activePlayerInstance = null;
+  function loadStream(key){
+    const c = channels[key];
+    if(!c) return;
+    // basic setup — adapt options to your jwplayer setup as needed
+    try{
+      if(activePlayerInstance && typeof activePlayerInstance.remove === 'function') activePlayerInstance.remove();
+    }catch(e){}
+    const player = jwplayer('player').setup({
+      file: c.url,
+      width: '100%',
+      aspectratio: '16:9',
+      autostart: true,
+      type: c.type || undefined,
+      drm: (c.type === 'mpd' && c.keyId && c.key) ? { clearkey: { keyId: c.keyId, key: c.key } } : undefined,
+    });
+    activePlayerInstance = player;
+
+    player.on('play', ()=>{
+      document.getElementById('playerContainer').style.background = 'none';
+      toggleBtn.querySelector('i')?.classList && toggleBtn.querySelector('i').classList.remove('text-sky-400');
+      liveBadge.classList.add('show');
+    });
+    player.on('complete', ()=>{ resetPlayerUI(); });
+    player.on('error', ()=>{ resetPlayerUI(); });
+  }
+
+  function resetPlayerUI(){
+    document.getElementById('playerContainer').style.background =
+      "url('https://images.squarespace-cdn.com/content/v1/5cacee5b52395863f12e75de/1569001200148-SQ2A3EHDQR81JTLOH8DT/SYY_02_02_INITIALIZE_Loop_Screen.gif?format=1500w') center/cover no-repeat";
+    liveBadge.classList.remove('show');
+  }
+
+  /*******************************
+   * Keyboard / Remote navigation
+   *******************************/
+  document.addEventListener('keydown', (e) => {
+    const visible = [...document.querySelectorAll('#channelList .channel-item')];
+    // if sidebar closed: allow opening with ArrowUp/ArrowDown or Enter on toggle
+    if(!sidebar.classList.contains('open')){
+      if(e.key === 'ArrowDown' || e.key === 'ArrowUp') { openSidebar(); e.preventDefault(); return; }
+      if(e.key === 'Enter' && document.activeElement === toggleBtn) { openSidebar(); return; }
+    }
+
+    // when sidebar open:
+    if(sidebar.classList.contains('open')){
+      if(e.key === 'ArrowDown'){ e.preventDefault(); focusListItem(focusedIndex + 1); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); focusListItem(focusedIndex - 1); }
+      else if(e.key === 'Enter'){ e.preventDefault(); visible[focusedIndex]?.click(); }
+      else if(e.key === 'Escape' || e.key === 'Backspace'){ e.preventDefault(); closeSidebar(); }
+    }
+  });
+
+  // also allow toggle button click
+  toggleBtn.addEventListener('click', openSidebar);
+  closeBtn.addEventListener('click', closeSidebar);
+
+  /*******************************
+   * Wait for channels to be available
+   *******************************/
+  function waitForChannelsThenInit(){
+    const check = setInterval(()=>{
+      if(typeof channels !== 'undefined' && Object.keys(channels).length > 0){
+        clearInterval(check);
+        populateList();
+        // Auto-open sidebar after 3s
+        setTimeout(()=> openSidebar(), 3000);
+
+        // auto resume last channel if present
+        const last = loadLast();
+        if(last && channels[last]) {
+          // small delay to ensure JWPlayer container is ready
+          setTimeout(()=> loadStream(last), 600);
+        }
+      }
+    }, 200);
+  }
+  waitForChannelsThenInit();
+
+  /*******************************
+   * Search input handling
+   *******************************/
+  let searchDebounce;
+  searchInput.addEventListener('input', (e)=>{
+    clearTimeout(searchDebounce);
+    const q = e.target.value;
+    searchDebounce = setTimeout(()=> highlightSearch(q), 120);
+  });
+
+  /*******************************
+   * Make list focusable when clicked
+   *******************************/
+  listEl.addEventListener('focusin', (ev)=> {
+    const items = [...document.querySelectorAll('#channelList .channel-item')];
+    const idx = items.indexOf(ev.target.closest('.channel-item'));
+    if(idx >= 0) focusedIndex = idx;
+  });
+
+  /*******************************
+   * Utility: expose populateList for debugging
+   *******************************/
+  window.__nxb = { populateList, highlightSearch };
+
   </script>
 </body>
 </html>
