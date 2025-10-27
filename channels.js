@@ -59,9 +59,9 @@ const channels = {
     },
     TV5: {
         name: 'TV5',
-        url: 'https://vision.seesie.workers.dev/1109/manifest.mpd',
-        keyId: '31363232303137373937323535313836',
-        key: '3551344768323677674c32704a713249',
+        url: 'https://qp-pldt-live-bpk-02-prod.akamaized.net/bpk-tv/tv5_hd/default1/index.mpd',
+        keyId: '2615129ef2c846a9bbd43a641c7303ef',
+        key: '07c7f996b1734ea288641a68e1cfdc4d',
      	type: 'mpd'
     },
 	  HBOXTREME: {
@@ -393,6 +393,5 @@ const channels = {
 
 
     };
-
 
 
