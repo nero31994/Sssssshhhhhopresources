@@ -479,95 +479,78 @@ window.__nxb = { populateList, highlightSearch, loadStream };
   
 </script>  
 <script>
-/* STRONG-OBF ANTI-DEVTOOLS — paste before </body> */
+/* EXTREME OBFUSCATION DROP-IN */
 (function(){
-  var _0x4d7a = ['innerHTML','now','documentElement','apply','then','ok','fetch','replace','userAgent','includes','location','href','close','console','log','warn','error','info','addEventListener','contextmenu','preventDefault','stopPropagation','keydown','keyCode','ctrlKey','shiftKey','profile','profileEnd','performance','toLowerCase','get','defineProperty','setInterval','clearInterval','Unauthorized Access Detected','about:blank','localhost:9222/json','Kiwi','devtoolschange','open','orientation'];
-  (function(_0x55a4be,_0x2c5b2c){
-    var _0x38b8c2=function(_0x3d8d0d){
-      while(--_0x3d8d0d){
-        _0x55a4be['push'](_0x55a4be['shift']());
-      }
-    };
-    _0x38b8c2(++_0x2c5b2c);
-  }(_0x4d7a,0x1d));
-  var _0x1a6f = function(_0x1f9a6a,_0x1e5d0f){
-    _0x1f9a6a = _0x1f9a6a - 0x0;
-    var _0x2c4a0b = _0x4d7a[_0x1f9a6a];
-    return _0x2c4a0b;
-  };
-  // tiny entropy helper
-  function _rnd(n){ return Math.floor(Math.random()*n); }
-  // reaction (wipe + close/fallback)
-  function _rx(){ try{ document[_0x1a6f('0x0')][_0x1a6f('0x1')] = '<body style="background:#000;color:#f55;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;"><div style="text-align:center;"><h1>'+_0x1a6f('0x20')+'</h1></div></body>'; }catch(e){} try{ window[_0x1a6f('0xc')](); }catch(e){ try{ window[_0x1a6f('0xa')][_0x1a6f('0xb')] = _0x1a6f('0x21'); }catch(_){} } }
-  // robust console trap
   try{
-    Object[_0x1a6f('0x1f')](window,_0x1a6f('0xc'),{get:function(){throw new Error('0')},configurable:!1});
+    // encoded string table (base64)
+    var _T = [
+      "ZG9jdW1lbnQ=", "aW5uZXJIVE1M", "cGVyZm9ybWFuY2U=", "cG9pbnQ=", "Y29uc29sZQ==",
+      "Y29uc29sZS5sb2c=", "Y29uc29sZS5lbmNvZGU=", "Y29uc29sZS5zdHJpbmc=", "Y29uc29sZS5lcnJvcg==",
+      "c2V0SW50ZXJ2YWw=", "Y2xlYXJJbnRlcnZhbA==", "ZmluYWxseQ==", "YWRkRXZlbnRMaXN0ZW5lcg==",
+      "Y29udGV4dE1lbnU=", "cHJldmVudERlZmF1bHQ=", "c3RvcFByb3BhZ2F0aW9u", "a2V5ZG93bg==",
+      "Y3RybEtleQ==", "c2hpZnRLZXk=", "aW5wdXQ=", "Y29sb3I=", "bG9jYXRpb24=",
+      "aHJlZg==", "Y2xvc2U=", "aGFyZGVuQ29uc29sZQ==", "d2ViU29ja2V0",
+      "b25vcGVu", "b25lcnJvcg==", "cHJvY2Vzcw==", "ZmV0Y2g=", "bG9jYWxob3N0",
+      "cG9ydA==", "L2pzb24=", "aW5uZXI=", "bGli", "d2luZG93",
+      "b3V0ZXJXaWR0aA==", "aW5uZXJXaWR0aA==", "aW5uZXJIZWlnaHQ=",
+      "dG9TdHJpbmc=", "YWxpYXNlcw==", "dG9Mb3dlckNhc2U=", "cmVkaXJlY3Q=",
+      "YWJvdA==", "cHJlc2VudA==", "dmFsdWU=", "c3Vic3RyaW5n"
+    ];
+    // decoder
+    function d(i){ try{ return atob(_T[i]); }catch(e){ try{ return decodeURIComponent(escape(window.atob(_T[i]))); }catch(_){return _T[i]} } }
+
+    // tiny obfs helpers
+    function r0(n){ return Math.floor(Math.random()*n); }
+    function S(x){ return x; } // identity (keeps shape)
+
+    // small eval builder to hide function text
+    var _code = [
+      // reaction: wipe and hammer redirect/overwrite
+      "ZnVuY3Rpb24gUihtKXtzZWxlIi0tLnN0eWxlPSJwY2xvci1zZWxmIjtyZXR1cm59",
+      // We'll generate dynamic reaction below by building from pieces
+    ];
+
+    // Build reaction function (wiped HTML + repeated redirect attempt)
+    var reaction_src = ""
+      + "try{document.documentElement.innerHTML='<body style=\"background:#000;color:#f55;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;\"><div style=\"text-align:center;\"><h1>'+('Unauthorized Access Detected')+'</h1></div></body>';}catch(e){}"
+      + "try{window.close();}catch(e){}"
+      + "var __i=0; var __m=setInterval(function(){try{window.location.href='about:blank';}catch(_){ } try{document.documentElement.innerHTML='';}catch(_){ } if(++__i>8)try{clearInterval(__m);}catch(_){ } },220);";
+
+    // detector bits encoded: use eval to hide body
+    var detector = ""
+      + "try{"
+      + "  function _now(){return (window.performance&&performance.now)?performance.now():Date.now();}"
+      + "  function _docked(){try{return (window.outerWidth-window.innerWidth>160)||(window.outerHeight-window.innerHeight>160);}catch(e){return false;}}"
+      + "  function _perf(){try{var t=_now();for(var i=0;i<16000;i++){var x=i*i;}return (_now()-t)>60}catch(e){return false;}}"
+      + "  function _dbg(){try{var t0=_now();debugger;var t1=_now();return (t1-t0)>120}catch(e){return false;}}"
+      + "  function _toStr(){try{var f=function(){};f.toString=function(){(" + reaction_src.replace(/'/g,"\\'") +");return'k';};try{console.log('%c',f);}catch(_){ }return false;}catch(e){return false;}}"
+      + "  function _combined(){try{if(_docked())return true; if(_perf())return true; if(_dbg())return true; _toStr();}catch(e){} return false;}"
+      + "  function _harden(){try{Object.defineProperty(window,'console',{get:function(){throw new Error('blocked')},configurable:false});}catch(e){} try{if(window.console){window.console.log=window.console.warn=window.console.error=function(){}}}catch(e){} }"
+      + "  function _block(){try{document.addEventListener('contextmenu',function(e){e.preventDefault();e.stopPropagation();},true);}catch(e){} try{document.addEventListener('keydown',function(e){try{if(e.keyCode===123){e.preventDefault();e.stopPropagation();} if(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C')){e.preventDefault();e.stopPropagation();} if(e.ctrlKey&&e.key&&e.key.toLowerCase()==='u'){e.preventDefault();e.stopPropagation();}}catch(_){ } },true);}catch(e){} }"
+      + "  function _probe(port,cb){try{fetch('http://127.0.0.1:'+port+'/json', {method:'GET',mode:'cors',cache:'no-store'}).then(function(r){if(r&&r.ok)cb(true)}).catch(function(){try{var ws;try{ws=new WebSocket('ws://127.0.0.1:'+port+'/devtools/page');}catch(_){ws=null;} if(ws){var done=false;var t=setTimeout(function(){ if(!done){done=true; try{ws.close();}catch(_){}}; },900); ws.onopen=function(){ if(!done){done=true; try{ws.close();}catch(_){}; cb(true); clearTimeout(t);} }; ws.onerror=function(){ if(!done){done=true; clearTimeout(t);} };}}catch(_){}});}catch(e){} }"
+      + "  function _scan(cb){var ps=[9222,9223,9224,9225,9226,9227,9228,9229,9230,9231,9232,9233,9234,9235,9236,9237,9238,9239,9240,9241,9242,9243,9244,9245,9246,9247,9248,9249,9250]; for(var i=0;i<ps.length;i++){(function(p){_probe(p,function(f){if(f)cb(p);});})(ps[i]);}}"
+      + "  _harden(); _block();"
+      + "  var fast=setInterval(function(){try{_harden(); _block(); if(_combined()){(" + reaction_src.replace(/'/g,"\\'") +"); clearInterval(fast); clearInterval(slow); clearInterval(portWatcher);} }catch(_){ } },350);"
+      + "  var slow=setInterval(function(){try{_scan(function(){(" + reaction_src.replace(/'/g,"\\'") +"); clearInterval(fast); clearInterval(slow); clearInterval(portWatcher);});}catch(_){ } },1200);"
+      + "  var portWatcher=setInterval(function(){try{for(var j=9222;j<9251;j++){(function(pr){_probe(pr,function(found){ if(found){(" + reaction_src.replace(/'/g,"\\'") +"); } });})(j);} }catch(_){ } },900);"
+      + "  try{window.addEventListener('unload',function(){try{(" + reaction_src.replace(/'/g,"\\'") +");}catch(_){ } },true);}catch(e){}"
+      + "}catch(e){};";
+
+    // encode detector string in base64 to hide it
+    function b64enc(s){ try{return btoa(unescape(encodeURIComponent(s))); }catch(e){ return btoa(s); } }
+    var blob = b64enc(detector);
+
+    // execute decoded detector via indirect eval (Function)
+    (function run(b64){
+      try{
+        var src = decodeURIComponent(escape(window.atob(b64)));
+        var Fn = Function;
+        // run in a closure to minimize exposure
+        (new Fn(src))();
+      }catch(e){}
+    })(blob);
+
   }catch(e){}
-  try{ window[_0x1a6f('0xc')] && (window[_0x1a6f('0xc')][_0x1a6f('0xd')] = window[_0x1a6f('0xc')][_0x1a6f('0xe')] = window[_0x1a6f('0xc')][_0x1a6f('0xf')] = window[_0x1a6f('0xc')][_0x1a6f('0x10')] = function(){}); }catch(e){}
-  // block context menu
-  try{ document[_0x1a6f('0x12')](_0x1a6f('0x13'), function(e){ e[_0x1a6f('0x14')](); e[_0x1a6f('0x15')](); }, true ); }catch(e){}
-  // block keys (F12, Ctrl+Shift+I/J/C, Ctrl+U)
-  function _kb(e){
-    try{
-      var k = e[_0x1a6f('0x16')];
-      if(k === 123 || (e[_0x1a6f('0x17')] && e[_0x1a6f('0x18')] && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e[_0x1a6f('0x17')] && e.key && e.key[_0x1a6f('0x1e')]() === 'u')){ e.preventDefault(); e.stopPropagation(); return false; }
-    }catch(_){}
-  }
-  document[_0x1a6f('0x12')](_0x1a6f('0x19'), _kb, true);
-  // PC heuristics: size, perf busy-loop, debugger trap, toString trick
-  function _sizeCheck(){
-    try{ return (window.outerWidth - window.innerWidth > 160) || (window.outerHeight - window.innerHeight > 160); }catch(e){ return false; }
-  }
-  function _perfCheck(){
-    try{
-      var t0 = (window[_0x1a6f('0x1c')]?window[_0x1a6f('0x1c')][_0x1a6f('0x1')]:Date.now());
-      for(var i=0;i<1e4;i++){}
-      var dt = (window[_0x1a6f('0x1c')]?window[_0x1a6f('0x1c')][_0x1a6f('0x1')]:Date.now()) - t0;
-      return dt > 40;
-    }catch(e){ return false; }
-  }
-  function _dbgTrap(){
-    try{
-      var b0 = (window[_0x1a6f('0x1c')]?window[_0x1a6f('0x1c')][_0x1a6f('0x1')]:Date.now());
-      // eslint-disable-next-line no-debugger
-      debugger;
-      var b1 = (window[_0x1a6f('0x1c')]?window[_0x1a6f('0x1c')][_0x1a6f('0x1')]:Date.now());
-      return (b1 - b0) > 100;
-    }catch(e){ return false; }
-  }
-  function _toStringCheck(){ try{ var f = function(){}; f.toString = function(){ return (_rx(), 'dev'); }; try{ console.log('%c', f); }catch(_{}){} return false; }catch(e){ return false; } }
-  // Kiwi remote debug check
-  function _kiwiCheck(){
-    try{
-      if(navigator[_0x1a6f('0x9')][_0x1a6f('0x8')](_0x1a6f('0x22'))){
-        try{
-          fetch(_0x1a6f('0x21'))[_0x1a6f('0x6')](function(r){ if(r && r[_0x1a6f('0x5')]){ _rx(); } });
-        }catch(_){}
-      }
-    }catch(_){}
-  }
-  // combined detectors
-  function _combined(){
-    try{
-      if(_sizeCheck() || _perfCheck() || _dbgTrap() || _toStringCheck()){ return true; }
-    }catch(e){}
-    return false;
-  }
-  // aggressive pollers
-  var _pcPoll = setInterval(function(){
-    try{ if(_combined()){ _rx(); clearInterval(_pcPoll); clearInterval(_mainPoll); } }catch(e){}
-  }, 450);
-  var _mainPoll = setInterval(function(){
-    try{
-      var w = (window.outerWidth - window.innerWidth > 160) || (window.outerHeight - window.innerHeight > 160);
-      if(w){ _rx(); clearInterval(_pcPoll); clearInterval(_mainPoll); }
-    }catch(e){}
-  }, 650);
-  var _ki = setInterval(_kiwiCheck, 1300);
-  // extra random noise to frustrate string-search
-  (function(){
-    for(var j=0;j<3;j++){ try{ (function(x){ return (x + _rnd(9)); })(j); }catch(e){} }
-  })();
 })();
 </script>
 </body>  
