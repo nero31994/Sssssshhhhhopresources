@@ -1,133 +1,161 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>BASTIKWANG TV — Glassmorphism List</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=0.7,user-scalable=no" />
+<title>BASTIKWANG TV — Neon Icons & Synced Names</title>
 
-  <!-- Tailwind (for utility classes) & Lucide -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+<!-- Tailwind (utilities) + Lucide -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- JWPlayer + channels (keep your real sources) -->
-  <script src="https://123proj.netlify.app/jwpsrv.js"></script>
-  <script src="https://123proj.netlify.app/jwplayer.js"></script>
-  <script src="https://123proj.netlify.app/channels.js"></script>
+<!-- JWPlayer + channels.js (keep your actual sources) -->
+<script src="https://123proj.netlify.app/jwpsrv.js"></script>
+<script src="https://123proj.netlify.app/jwplayer.js"></script>
+<script src="https://123proj.netlify.app/channels.js"></script>
 
-  <style>
-    /* ------------------------------
-       Global: lock viewport & hide page scroll
-       ------------------------------ */
-    *,*::before,*::after{box-sizing:border-box}
-    html,body{
-      width:100vw;height:100vh;margin:0;padding:0;
-      overflow:hidden !important; /* no page scroll */
-      background:#060608; color:#eee;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      position:fixed; inset:0;
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
+<style>
+  /* global fixed viewport, no page scroll */
+  *,*::before,*::after{box-sizing:border-box}
 
-    /* main centered player area */
-    main{display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:1rem;overflow:hidden}
+  /* Prevent horizontal scroll + touch/overscroll issues (fixes zoom/push) */
+  html,body{
+    width:100vw;
+    height:100vh;
+    margin:0;
+    padding:0;
+    overflow-x:hidden;              /* <-- block horizontal scroll */
+    overscroll-behavior-x:none;     /* <-- prevent overscroll x */
+    -webkit-overflow-scrolling:touch;
+    touch-action: pan-y;            /* <-- allow vertical only */
+    background:#050608;
+    color:#e6eef8;
+    font-family:Inter,system-ui,Roboto,Arial;
+  }
 
-    /* player container: keeps 16:9 and centered */
-    #playerContainer{
-      width:100%;max-width:1280px;aspect-ratio:16/9;border-radius:1rem;overflow:hidden;position:relative;
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.6));
-      box-shadow:0 10px 40px rgba(0,0,0,0.6);
-      background-image:url('https://media.tenor.com/IemnuHk4r_4AAAAM/no-signal-stand-by.gif');
-      background-position:center;background-size:cover;background-repeat:no-repeat;
-    }
-    #player{position:absolute;inset:0;width:100%;height:100%;z-index:2}
+  /* When sidebar open, lock page scrolling */
+  body.sidebar-open {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
 
-    /* floating controls */
-    .float-btn{position:fixed;right:1.25rem;bottom:1.25rem;z-index:60;display:flex;flex-direction:column;gap:.5rem;align-items:center}
-    .icon-btn{background:transparent;border:0;color:#60a5fa;padding:.25rem;border-radius:.5rem;backdrop-filter:blur(6px);cursor:pointer}
-    .icon-btn:focus{outline:2px solid rgba(96,165,250,0.25);transform:scale(1.03)}
+  main{display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:1rem;overflow:hidden}
 
-    /* live badge */
-    #liveBadge{opacity:0;transform:translateY(.5rem);transition:opacity .3s,transform .3s}
-    #liveBadge.show{opacity:1;transform:translateY(0)}
-    .live-dot-global{width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,0.8);display:inline-block;margin-right:.5rem;animation:pulse 1s infinite alternate}
-    @keyframes pulse{from{transform:scale(.85);opacity:.6}to{transform:scale(1.12);opacity:1}}
+  /* player */
+  #playerContainer{
+    width:100%;max-width:1280px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;position:relative;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.6));
+    box-shadow:0 10px 40px rgba(0,0,0,0.6);
+    background-image:url('https://media.tenor.com/IemnuHk4r_4AAAAM/no-signal-stand-by.gif');
+    background-position:center;background-size:cover;background-repeat:no-repeat;}
+  #player{position:absolute;inset:0;width:100%;height:100%;z-index:2}
 
-    /* ------------------------------
-       Sidebar (glassmorphism)
-       ------------------------------ */
-    #channelSidebar{
-      position:fixed;top:0;right:0;height:100vh;width:22.5rem;max-width:100%;
-      transform:translateX(110%);transition:transform .45s cubic-bezier(.2,.9,.2,1);
-      z-index:70;display:flex;flex-direction:column;overflow:hidden;
-      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      border-left:1px solid rgba(255,255,255,0.06);
-      backdrop-filter:blur(12px) saturate(120%);
-      box-shadow:-10px 30px 60px rgba(2,6,23,0.6);
-    }
-    #channelSidebar.open{transform:translateX(0)}
+  /* floating */
+  .float-btn{position:fixed;right:1.25rem;bottom:1.25rem;z-index:60;display:flex;flex-direction:column;gap:.5rem;align-items:center}
+  .icon-btn{background:transparent;border:0;color:inherit;padding:.25rem;border-radius:.5rem;backdrop-filter:blur(6px);cursor:pointer}
+  .icon-btn:focus{outline:2px solid rgba(96,165,250,0.14);transform:scale(1.02)}
 
-    /* sidebar header */
-    .sidebar-header{padding:1rem;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;gap:.5rem}
-    .sidebar-header h2{font-size:1rem;font-weight:700;display:flex;gap:.5rem;align-items:center;color:#e6eef8}
+  /* live badge */
+  #liveBadge{opacity:0;transform:translateY(.4rem);transition:opacity .3s,transform .3s}
+  #liveBadge.show{opacity:1;transform:translateY(0)}
+  .live-dot-global{width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,0.9);display:inline-block;margin-right:.5rem;animation:pulse 1s infinite alternate}
+  @keyframes pulse{from{transform:scale(.85);opacity:.6}to{transform:scale(1.12);opacity:1}}
 
-    /* search bar */
-    .search-wrap{padding:.7rem;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:.5rem}
-    .search-input{flex:1;padding:.5rem .6rem;border-radius:.5rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:#e8eef8;outline:none}
-    .search-input::placeholder{color:rgba(255,255,255,0.35)}
-
-    /* list container: internal scrolling only */
-    #channelListWrap{flex:1;overflow:hidden;padding:.75rem}
-    #channelList{display:flex;flex-direction:column;gap:.45rem;overflow-y:auto;padding-right:.5rem}
-    /* hide scrollbars */
-    #channelList::-webkit-scrollbar{width:0;height:0}
-    #channelList{scrollbar-width:none;-ms-overflow-style:none}
-
-    /* channel item (list view) */
-    .channel-item{
-      display:flex;align-items:center;gap:.75rem;padding:.6rem;border-radius:.75rem;
-      background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.16));
-      border:1px solid rgba(255,255,255,0.03);cursor:pointer;
-      transition:transform .16s,box-shadow .16s,background .16s;
-    }
-    .channel-item:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.55)}
-    .channel-item:focus{outline:none;box-shadow:0 0 0 3px rgba(96,165,250,0.12);transform:scale(1.02)}
-    .ch-logo{width:56px;height:40px;border-radius:.5rem;object-fit:cover;border:1px solid rgba(255,255,255,0.05);flex-shrink:0}
-    .ch-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
-    .ch-name{font-size:.98rem;font-weight:600;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .ch-sub{font-size:.78rem;color:rgba(255,255,255,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-    /* live dot inside list */
-    .live-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:.5rem;box-shadow:0 0 6px rgba(239,68,68,0.85);animation:pulse .9s infinite alternate;flex-shrink:0}
-
-    /* faded non-matches */
-    .fade-out{opacity:.18;transform:scale(.995);filter:grayscale(.25)}
-
-    /* highlight mark */
-    mark.search-hit{background:#ff4757;color:white;padding:0 .15rem;border-radius:.15rem}
-
-    /* small util */
-    .muted{color:rgba(255,255,255,0.45);font-size:.82rem}
-
-    /* responsive tweaks */
-    @media (max-width:640px){
-      #channelSidebar{width:100vw}
-      .ch-logo{width:46px;height:34px}
-      #playerContainer{max-width:100%}
-    }
-    .channel-name {
-  background: linear-gradient(90deg, #00e5ff, #4efcff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  /* sidebar glass - GPU accelerated */
+  #channelSidebar{
+    position:fixed;top:0;right:0;height:100vh;width:22.5rem;max-width:100%;
+    transform:translateX(110%);
+    transition:transform .45s cubic-bezier(.2,.9,.2,1);
+    will-change: transform; /* <-- hint for GPU compositing */
+    z-index:70;display:flex;flex-direction:column;overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border-left:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(12px) saturate(120%);
+    box-shadow:-10px 30px 60px rgba(2,6,23,0.6);
+  }
+  #channelSidebar.open{transform:translateX(0)}
+  .sidebar-header{padding:1rem;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between}
+  .search-wrap{padding:.7rem;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:.5rem}
+  .search-input {
+  flex:1;
+  padding:.5rem .6rem;
+  border-radius:.5rem;
+  background:#2b2b2b; /* solid grey background */
+  border:1px solid rgba(255,255,255,0.05);
+  color:#e8eef8;
+  outline:none;
 }
-  </style>
-</head>
+.search-input::placeholder {
+  color:rgba(255,255,255,0.5);
+}
 
+  /* list internal scroll */
+  #channelListWrap{flex:1;overflow:hidden;padding:.75rem}
+  /* UPDATED: improved scrollable list for TV and mobile */
+  #channelList{
+    display:flex;flex-direction:column;gap:.45rem;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    scroll-behavior:smooth;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(255,255,255,0.2) transparent;
+    padding-right:.5rem;
+    max-height:calc(100vh - 8rem);
+  }
+  #channelList::-webkit-scrollbar{width:6px}
+  #channelList::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:10px}
+
+  /* list item */
+  .channel-item {
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  padding:.62rem;
+  border-radius:.72rem;
+  background:#2b2b2b;
+  border:1px solid rgba(255,255,255,0.03);
+  cursor:pointer;
+  transition:transform .14s,box-shadow .14s,background .14s;
+}
+
+
+
+
+
+  .channel-item:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.55)}
+  .channel-item:focus{outline:none;box-shadow:0 0 0 3px rgba(96,165,250,0.12);transform:scale(1.02)}
+  .ch-logo{width:56px;height:40px;border-radius:.5rem;object-fit:cover;border:1px solid rgba(255,255,255,0.05);flex-shrink:0}
+  .ch-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .ch-name{font-size:.98rem;font-weight:600;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ch-sub{font-size:.78rem;color:rgba(255,255,255,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* lucide icon inside item */
+  .ch-icon{width:18px;height:18px;flex-shrink:0;margin-right:6px}
+
+  /* name glow helper */
+  .neon-text { text-shadow: 0 6px 18px rgba(0,0,0,0.6); transition: text-shadow .18s, color .18s; }
+
+  /* live dot */
+  .live-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:.5rem;box-shadow:0 0 6px rgba(239,68,68,0.85);animation:pulse .9s infinite alternate;flex-shrink:0}
+
+  /* faded non-match */
+  .fade-out{opacity:.18;transform:scale(.995);filter:grayscale(.25)}
+
+  /* search mark */
+  mark.search-hit{background:#ff4757;color:white;padding:0 .15rem;border-radius:.12rem}
+
+  @media(max-width:640px){
+    #channelSidebar{width:100vw}
+    .ch-logo{width:46px;height:34px}
+    #playerContainer{max-width:100%}
+  }
+</style>
+</head>
 <body>
   <main>
-    <div id="playerContainer" aria-label="Video player">
-      <div id="player"></div>
-    </div>
+    <div id="playerContainer" aria-label="Video player"><div id="player"></div></div>
   </main>
 
   <!-- floating control -->
@@ -135,15 +163,15 @@
     <button id="channelToggle" class="icon-btn" aria-label="Open channels" tabindex="0">
       <i data-lucide="tv" class="w-10 h-10 text-sky-400"></i>
     </button>
-    <div id="liveBadge" class="px-3 py-1 rounded-md bg-black/50 text-sm font-semibold muted" aria-hidden="true">
+    <div id="liveBadge" class="px-3 py-1 rounded-md bg-black/50 text-sm font-semibold" aria-hidden="true">
       <span class="live-dot-global" aria-hidden="true"></span>LIVE NOW
     </div>
   </div>
 
-  <!-- Sidebar (glassmorphism) -->
+  <!-- Sidebar -->
   <aside id="channelSidebar" aria-hidden="true" role="dialog" aria-label="Channel list">
     <div class="sidebar-header">
-      <h2><i data-lucide="tv" class="w-5 h-5 text-sky-400"></i> Channels</h2>
+      <h2 style="display:flex;align-items:center;gap:.5rem"><i data-lucide="tv" class="w-5 h-5 text-sky-400"></i> Channels</h2>
       <div style="display:flex;gap:.5rem;align-items:center">
         <button id="closeSidebar" class="icon-btn" aria-label="Close channels" tabindex="0"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
@@ -159,279 +187,296 @@
     </div>
   </aside>
 
-  <script>
-  /*******************************
-   * Initialization & utilities
-   *******************************/
-  lucide.createIcons && lucide.createIcons();
-  jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
-  const DEFAULT_LOGO = 'https://cdn-icons-png.flaticon.com/512/3208/3208758.png';
+<script>
+/* ========== Setup ========== */
+lucide.createIcons && lucide.createIcons();
+jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
 
-  const sidebar = document.getElementById('channelSidebar');
-  const toggleBtn = document.getElementById('channelToggle');
-  const closeBtn = document.getElementById('closeSidebar');
-  const listEl = document.getElementById('channelList');
-  const searchInput = document.getElementById('searchInput');
-  const liveBadge = document.getElementById('liveBadge');
+const DEFAULT_LOGO = 'https://cdn-icons-png.flaticon.com/512/3208/3208758.png';
+const sidebar = document.getElementById('channelSidebar');
+const toggleBtn = document.getElementById('channelToggle');
+const closeBtn = document.getElementById('closeSidebar');
+const listEl = document.getElementById('channelList');
+const searchInput = document.getElementById('searchInput');
+const liveBadge = document.getElementById('liveBadge');
 
-  let focusedIndex = 0;
-  let visibleItems = []; // currently visible channel DOM nodes
-  let channelKeys = [];   // keys order
-  let observerImgs;       // lazy load observer
+let focusedIndex = 0;
+let visibleItems = [];
+let channelKeys = [];
+let imgObserver;
 
-  /*******************************
-   * Helpers
-   *******************************/
-  const isLive = (c) => (c.live === true) || (typeof c.name === 'string' && /live/i.test(c.name));
-  const saveLast = (key) => localStorage.setItem('nxb_last_channel', key || '');
-  const loadLast = () => localStorage.getItem('nxb_last_channel') || '';
+/* Neon color palette (good for both TV and mobile) */
+const NEON_PALETTE = [
+  '#00e5ff','#7c4dff','#ff4ecb','#33ffa8','#ffd166','#38bdf8','#ff7b5c','#8affc1'
+];
 
-  function openSidebar(){ sidebar.classList.add('open'); sidebar.setAttribute('aria-hidden','false'); setTimeout(()=>{ focusListItem(0) }, 420) }
-  function closeSidebar(){ sidebar.classList.remove('open'); sidebar.setAttribute('aria-hidden','true'); toggleBtn.focus(); }
+/* Utility: return random neon color from palette */
+function pickNeon(key){
+  let hash = 0;
+  for(let i=0;i<key.length;i++) hash = (hash<<5)-hash + key.charCodeAt(i);
+  hash = Math.abs(hash);
+  return NEON_PALETTE[hash % NEON_PALETTE.length];
+}
 
-  function focusListItem(i){
-    visibleItems = [...document.querySelectorAll('#channelList .channel-item:not(.hidden)')];
-    if(!visibleItems.length) return;
-    focusedIndex = Math.max(0, Math.min(i, visibleItems.length - 1));
-    const el = visibleItems[focusedIndex];
-    el.focus();
-    // ensure visible in sidebar scroll
-    el.scrollIntoView({block:'nearest',behavior:'smooth'});
-  }
+/* Check live: explicit c.live === true or "live" in name */
+function isLive(c){ return c && (c.live===true || (typeof c.name==='string' && /live/i.test(c.name))); }
 
-  /*******************************
-   * Build channel list (list view)
-   *******************************/
-  function populateList(){
-    listEl.innerHTML = '';
-    if(typeof channels === 'undefined' || !Object.keys(channels).length) return;
+/* ========== Populate list ========== */
+function populateList(){
+  listEl.innerHTML = '';
+  if(typeof channels === 'undefined' || !Object.keys(channels).length) return;
 
-    channelKeys = Object.keys(channels).sort((a,b) => channels[a].name.localeCompare(channels[b].name));
+  channelKeys = Object.keys(channels).sort((a,b) => channels[a].name.localeCompare(channels[b].name));
 
-    for(const k of channelKeys){
-      const c = channels[k];
-      const li = document.createElement('div');
-      li.className = 'channel-item';
-      li.tabIndex = 0;
-      li.dataset.key = k;
-      li.role = 'listitem';
-
-      // logo (lazy)
-      const img = document.createElement('img');
-      img.className = 'ch-logo lazy';
-      img.alt = c.name || k;
-      img.dataset.src = c.logo || DEFAULT_LOGO;
-      img.src = ''; // set later via intersection observer
-
-      // meta
-      const meta = document.createElement('div'); meta.className = 'ch-meta';
-      const titleRow = document.createElement('div'); titleRow.style.display='flex'; titleRow.style.alignItems='center';
-      // live dot (if live)
-      if(isLive(c)){
-        const liveDot = document.createElement('span');
-        liveDot.className = 'live-dot';
-        liveDot.setAttribute('aria-hidden','true');
-        titleRow.appendChild(liveDot);
-      } else {
-        // small spacer to align
-        const spacer = document.createElement('span'); spacer.style.width='12px'; titleRow.appendChild(spacer);
-      }
-
-      const name = document.createElement('div'); name.className='ch-name'; name.textContent = c.name || k;
-      titleRow.appendChild(name);
-
-      const sub = document.createElement('div'); sub.className='ch-sub muted'; sub.textContent = c.type ? c.type.toUpperCase() : '';
-
-      meta.appendChild(titleRow);
-      meta.appendChild(sub);
-
-      li.appendChild(img);
-      li.appendChild(meta);
-
-      // click handler: load stream & close
-      li.addEventListener('click', ()=> {
-        loadStream(k);
-        saveLast(k);
-        closeSidebar(); // auto-close after selection
-      });
-
-      // keyboard: Enter -> click (handled globally too)
-      li.addEventListener('keydown', (ev) => {
-        if(ev.key === 'Enter'){ ev.preventDefault(); li.click(); }
-      });
-
-      listEl.appendChild(li);
-    }
-
-    // setup lazy-load observer for logos
-    setupLazyLoad();
-  }
-
-  /*******************************
-   * Lazy-load logos
-   *******************************/
-  function setupLazyLoad(){
-    const imgs = document.querySelectorAll('img.lazy');
-    if('IntersectionObserver' in window){
-      observerImgs && observerImgs.disconnect();
-      observerImgs = new IntersectionObserver((entries, obs) => {
-        entries.forEach(e => {
-          if(e.isIntersecting){
-            const img = e.target;
-            img.src = img.dataset.src || DEFAULT_LOGO;
-            img.classList.remove('lazy');
-            obs.unobserve(img);
-          }
-        });
-      },{root: document.getElementById('channelList'),rootMargin:'200px'});
-      imgs.forEach(i => observerImgs.observe(i));
-    } else {
-      // fallback: load all
-      imgs.forEach(i => i.src = i.dataset.src || DEFAULT_LOGO);
-    }
-  }
-
-  /*******************************
-   * Search: highlight + fade others
-   *******************************/
-  function highlightSearch(q){
-    const needle = (q || '').trim().toLowerCase();
-    const items = [...document.querySelectorAll('#channelList .channel-item')];
-    items.forEach(item => {
-      const key = item.dataset.key;
-      const name = (channels[key].name || '').toLowerCase();
-      // clear previous marks
-      const nameEl = item.querySelector('.ch-name');
-      nameEl.innerHTML = channels[key].name || key;
-
-      if(!needle){
-        item.classList.remove('hidden','fade-out');
-        item.style.display = 'flex';
-      } else if(name.includes(needle)){
-        // highlight matches
-        const regex = new RegExp(`(${escapeRegExp(needle)})`, 'ig');
-        nameEl.innerHTML = (channels[key].name || key).replace(regex, '<mark class="search-hit">$1</mark>');
-        item.classList.remove('fade-out');
-        item.style.display = 'flex';
-      } else {
-        // fade-out non-matches (not completely hide so layout stable)
-        item.classList.add('fade-out');
-        item.style.display = 'flex';
-      }
-    });
-    // reset focused index if current focused item is faded
-    visibleItems = [...document.querySelectorAll('#channelList .channel-item:not(.hidden)')];
-    focusListItem(0);
-  }
-
-  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
-  /*******************************
-   * Player logic
-   *******************************/
-  let activePlayerInstance = null;
-  function loadStream(key){
+  for(const key of channelKeys){
     const c = channels[key];
-    if(!c) return;
-    // basic setup — adapt options to your jwplayer setup as needed
-    try{
-      if(activePlayerInstance && typeof activePlayerInstance.remove === 'function') activePlayerInstance.remove();
-    }catch(e){}
-    const player = jwplayer('player').setup({
-      file: c.url,
-      width: '100%',
-      aspectratio: '16:9',
-      autostart: true,
-      type: c.type || undefined,
-      drm: (c.type === 'mpd' && c.keyId && c.key) ? { clearkey: { keyId: c.keyId, key: c.key } } : undefined,
-    });
-    activePlayerInstance = player;
+    const row = document.createElement('div');
+    row.className = 'channel-item';
+    row.tabIndex = 0;
+    row.dataset.key = key;
+    row.dataset.name = (c.name||'').toLowerCase();
+    row.role = 'listitem';
 
-    player.on('play', ()=>{
-      document.getElementById('playerContainer').style.background = 'none';
-      toggleBtn.querySelector('i')?.classList && toggleBtn.querySelector('i').classList.remove('text-sky-400');
-      liveBadge.classList.add('show');
-    });
-    player.on('complete', ()=>{ resetPlayerUI(); });
-    player.on('error', ()=>{ resetPlayerUI(); });
-  }
+    // logo (lazy)
+    const logo = document.createElement('img');
+    logo.className = 'ch-logo lazy';
+    logo.alt = c.name || key;
+    logo.dataset.src = c.logo || DEFAULT_LOGO;
+    logo.src = '';
 
-  function resetPlayerUI(){
-    document.getElementById('playerContainer').style.background =
-      "url('https://images.squarespace-cdn.com/content/v1/5cacee5b52395863f12e75de/1569001200148-SQ2A3EHDQR81JTLOH8DT/SYY_02_02_INITIALIZE_Loop_Screen.gif?format=1500w') center/cover no-repeat";
-    liveBadge.classList.remove('show');
-  }
+    // icon + meta wrapper
+    const meta = document.createElement('div');
+    meta.className = 'ch-meta';
 
-  /*******************************
-   * Keyboard / Remote navigation
-   *******************************/
-  document.addEventListener('keydown', (e) => {
-    const visible = [...document.querySelectorAll('#channelList .channel-item')];
-    // if sidebar closed: allow opening with ArrowUp/ArrowDown or Enter on toggle
-    if(!sidebar.classList.contains('open')){
-      if(e.key === 'ArrowDown' || e.key === 'ArrowUp') { openSidebar(); e.preventDefault(); return; }
-      if(e.key === 'Enter' && document.activeElement === toggleBtn) { openSidebar(); return; }
+    // small lucide icon (we'll color it)
+    const iconWrap = document.createElement('div');
+    iconWrap.style.display = 'flex';
+    iconWrap.style.alignItems = 'center';
+    iconWrap.style.gap = '6px';
+
+    const icon = document.createElement('i');
+    icon.setAttribute('data-lucide','play-circle');
+    icon.className = 'ch-icon';
+    const neon = pickNeon(key);
+    icon.style.color = neon;
+    icon.style.filter = 'drop-shadow(0 6px 16px rgba(0,0,0,0.6))';
+
+    // name and subtitles
+    const titleRow = document.createElement('div');
+    titleRow.style.display = 'flex';
+    titleRow.style.alignItems = 'center';
+
+    if(isLive(c)){
+      const liveDot = document.createElement('span');
+      liveDot.className = 'live-dot';
+      liveDot.setAttribute('aria-hidden','true');
+      titleRow.appendChild(liveDot);
+    } else {
+      const spacer = document.createElement('span');
+      spacer.style.width = '12px';
+      titleRow.appendChild(spacer);
     }
 
-    // when sidebar open:
-    if(sidebar.classList.contains('open')){
-      if(e.key === 'ArrowDown'){ e.preventDefault(); focusListItem(focusedIndex + 1); }
-      else if(e.key === 'ArrowUp'){ e.preventDefault(); focusListItem(focusedIndex - 1); }
-      else if(e.key === 'Enter'){ e.preventDefault(); visible[focusedIndex]?.click(); }
-      else if(e.key === 'Escape' || e.key === 'Backspace'){ e.preventDefault(); closeSidebar(); }
+    const name = document.createElement('div');
+    name.className = 'ch-name neon-text';
+    name.textContent = c.name || key;
+    name.style.color = neon;
+    name.style.textShadow = `0 6px 18px ${hexToRgba(neon,0.18)}, 0 0 8px ${hexToRgba(neon,0.06)}`;
+
+    const sub = document.createElement('div');
+    sub.className = 'ch-sub muted';
+    sub.textContent = c.type ? (c.type.toUpperCase()) : '';
+
+    titleRow.appendChild(name);
+    meta.appendChild(titleRow);
+    meta.appendChild(sub);
+
+    // append elements
+    iconWrap.appendChild(icon);
+    row.appendChild(logo);
+    row.appendChild(iconWrap);
+    row.appendChild(meta);
+
+    // click: load stream + save + close sidebar
+    row.addEventListener('click', ()=> {
+      loadStream(key);
+      localStorage.setItem('nxb_last_channel', key);
+      closeSidebar();
+    });
+
+    // keyboard enter
+    row.addEventListener('keydown', (ev) => { if(ev.key === 'Enter'){ ev.preventDefault(); row.click(); } });
+
+    listEl.appendChild(row);
+  }
+
+  // call lucide.createIcons to render icons inside list
+  lucide.createIcons && lucide.createIcons();
+
+  // sync injected svg stroke color to parent ch-icon color
+  document.querySelectorAll('#channelList .ch-icon').forEach(el=>{
+    const svg = el.querySelector('svg');
+    if(svg){
+      const col = window.getComputedStyle(el).color;
+      svg.style.stroke = col;
+      svg.style.filter = `drop-shadow(0 8px 20px ${col})`;
+      svg.style.width = '18px';
+      svg.style.height = '18px';
     }
   });
 
-  // also allow toggle button click
-  toggleBtn.addEventListener('click', openSidebar);
-  closeBtn.addEventListener('click', closeSidebar);
+  // lazy load images
+  setupLazyLoad();
+}
 
-  /*******************************
-   * Wait for channels to be available
-   *******************************/
-  function waitForChannelsThenInit(){
-    const check = setInterval(()=>{
-      if(typeof channels !== 'undefined' && Object.keys(channels).length > 0){
-        clearInterval(check);
-        populateList();
-        // Auto-open sidebar after 3s
-        setTimeout(()=> openSidebar(), 3000);
+/* hex to rgba helper */
+function hexToRgba(hex, a=1){
+  if(!hex) return `rgba(0,0,0,${a})`;
+  hex = hex.replace('#','');
+  if(hex.length===3) hex = hex.split('').map(x=>x+x).join('');
+  const r = parseInt(hex.substr(0,2),16);
+  const g = parseInt(hex.substr(2,2),16);
+  const b = parseInt(hex.substr(4,2),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
 
-        // auto resume last channel if present
-        const last = loadLast();
-        if(last && channels[last]) {
-          // small delay to ensure JWPlayer container is ready
-          setTimeout(()=> loadStream(last), 600);
+/* ========== Lazy-load logos ========== */
+function setupLazyLoad(){
+  const imgs = document.querySelectorAll('img.lazy');
+  if('IntersectionObserver' in window){
+    imgObserver && imgObserver.disconnect();
+    imgObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          const img = e.target;
+          img.src = img.dataset.src || DEFAULT_LOGO;
+          img.classList.remove('lazy');
+          obs.unobserve(img);
         }
-      }
-    }, 200);
+      });
+    }, {root: document.getElementById('channelList'), rootMargin: '300px'});
+    imgs.forEach(i => imgObserver.observe(i));
+  } else {
+    imgs.forEach(i => i.src = i.dataset.src || DEFAULT_LOGO);
   }
-  waitForChannelsThenInit();
+}
 
-  /*******************************
-   * Search input handling
-   *******************************/
-  let searchDebounce;
-  searchInput.addEventListener('input', (e)=>{
-    clearTimeout(searchDebounce);
-    const q = e.target.value;
-    searchDebounce = setTimeout(()=> highlightSearch(q), 120);
+/* ========== Player logic (JWPlayer) ========== */
+let playerInstance = null;
+function loadStream(key){
+  const c = channels[key];
+  if(!c) return;
+  try{ if(playerInstance && playerInstance.remove) playerInstance.remove(); }catch(e){}
+  const pl = jwplayer('player').setup({
+    file: c.url,
+    width: '100%',
+    aspectratio: '16:9',
+    autostart: true,
+    type: c.type || undefined,
+    drm: (c.type === 'mpd' && c.keyId && c.key) ? { clearkey: { keyId: c.keyId, key: c.key } } : undefined,
   });
-
-  /*******************************
-   * Make list focusable when clicked
-   *******************************/
-  listEl.addEventListener('focusin', (ev)=> {
-    const items = [...document.querySelectorAll('#channelList .channel-item')];
-    const idx = items.indexOf(ev.target.closest('.channel-item'));
-    if(idx >= 0) focusedIndex = idx;
+  playerInstance = pl;
+  pl.on('play', ()=>{
+    document.getElementById('playerContainer').style.background = 'none';
+    liveBadge.classList.add('show');
   });
+  pl.on('complete', resetPlayerUI);
+  pl.on('error', resetPlayerUI);
+}
 
-  /*******************************
-   * Utility: expose populateList for debugging
-   *******************************/
-  window.__nxb = { populateList, highlightSearch };
+function resetPlayerUI(){
+  document.getElementById('playerContainer').style.background =
+    "url('https://images.squarespace-cdn.com/content/v1/5cacee5b52395863f12e75de/1569001200148-SQ2A3EHDQR81JTLOH8DT/SYY_02_02_INITIALIZE_Loop_Screen.gif?format=1500w') center/cover no-repeat";
+  liveBadge.classList.remove('show');
+}
 
-  </script>
+/* ========== Keyboard / Remote navigation (improved) ========== */
+const listContainer = document.getElementById('channelList');
+
+function focusVisible(i){
+  visibleItems = [...document.querySelectorAll('#channelList .channel-item:not(.hidden)')];
+  if(!visibleItems.length) return;
+  focusedIndex = Math.max(0, Math.min(i, visibleItems.length - 1));
+  const el = visibleItems[focusedIndex];
+  el.focus();
+  el.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+document.addEventListener('keydown', (e)=>{
+  const open = sidebar.classList.contains('open');
+  // open sidebar with arrows if closed
+  if(!open){
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ openSidebar(); e.preventDefault(); return; }
+    if(e.key === 'Enter' && document.activeElement === toggleBtn){ openSidebar(); return; }
+  }
+
+  if(open){
+    if(e.key === 'ArrowDown'){ e.preventDefault(); focusVisible(focusedIndex + 1); listContainer.scrollBy({ top: 60, behavior: 'smooth' }); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); focusVisible(focusedIndex - 1); listContainer.scrollBy({ top: -60, behavior: 'smooth' }); }
+    else if(e.key === 'Enter'){ e.preventDefault(); const vis = [...document.querySelectorAll('#channelList .channel-item')]; vis[focusedIndex]?.click(); }
+    else if(e.key === 'Escape' || e.key === 'Backspace'){ e.preventDefault(); closeSidebar(); }
+  }
+});
+
+/* ========== Sidebar open/close (now locks body) ========== */
+function openSidebar(){ sidebar.classList.add('open'); sidebar.setAttribute('aria-hidden','false'); document.body.classList.add('sidebar-open'); setTimeout(()=> focusVisible(0),420) }
+function closeSidebar(){ sidebar.classList.remove('open'); sidebar.setAttribute('aria-hidden','true'); document.body.classList.remove('sidebar-open'); toggleBtn.focus(); }
+
+/* UI bindings */
+toggleBtn.addEventListener('click', ()=>{ if(sidebar.classList.contains('open')) closeSidebar(); else openSidebar(); });
+closeBtn.addEventListener('click', closeSidebar);
+
+/* ========== Search highlight + fade ========== */
+let searchDeb;
+searchInput.addEventListener('input', (ev)=> {
+  clearTimeout(searchDeb);
+  searchDeb = setTimeout(()=> highlightSearch(ev.target.value), 120);
+});
+
+function highlightSearch(q){
+  const n = (q||'').trim().toLowerCase();
+  const items = [...document.querySelectorAll('#channelList .channel-item')];
+  items.forEach(item=>{
+    const key = item.dataset.key;
+    const nameEl = item.querySelector('.ch-name');
+    nameEl.innerHTML = channels[key].name || key;
+    if(!n){
+      item.classList.remove('fade-out');
+      item.style.display = 'flex';
+    } else if((channels[key].name||'').toLowerCase().includes(n)){
+      const regex = new RegExp(`(${escapeRegExp(n)})`, 'ig');
+      nameEl.innerHTML = (channels[key].name||key).replace(regex, '<mark class="search-hit">$1</mark>');
+      item.classList.remove('fade-out');
+      item.style.display = 'flex';
+    } else {
+      item.classList.add('fade-out');
+      item.style.display = 'flex';
+    }
+  });
+  focusVisible(0);
+}
+
+function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+/* ========== Wait for channels and init ========== */
+function waitForChannels(){
+  const check = setInterval(()=>{
+    if(typeof channels !== 'undefined' && Object.keys(channels).length > 0){
+      clearInterval(check);
+      populateList();
+      // auto-open after 3s
+      setTimeout(()=> openSidebar(), 3000);
+      // restore last channel
+      const last = localStorage.getItem('nxb_last_channel');
+      if(last && channels[last]) setTimeout(()=> loadStream(last), 600);
+    }
+  }, 200);
+}
+waitForChannels();
+
+/* ========== Expose small API for debugging ========== */
+window.__nxb = { populateList, highlightSearch, loadStream };
+
+</script>
 </body>
 </html>
