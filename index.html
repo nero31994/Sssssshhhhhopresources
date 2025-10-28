@@ -151,18 +151,17 @@
     .ch-logo{width:46px;height:34px}  
     #playerContainer{max-width:90%}  
   }  
-  /* ===== Active Channel Highlight (Neon Glow) ===== */
+/* ===== Dynamic Active Channel Glow ===== */
 .channel-item.active {
   position: relative;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(56,189,248,0.08));
-  box-shadow: 0 10px 30px rgba(56,189,248,0.2), 0 2px 6px rgba(0,0,0,0.5);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), var(--glow-bg, rgba(56,189,248,0.08)));
+  box-shadow: 0 10px 30px var(--glow-shadow, rgba(56,189,248,0.25)), 0 2px 6px rgba(0,0,0,0.5);
   transform: translateY(-4px) scale(1.02);
-  border: 1px solid rgba(96,165,250,0.25);
-  outline: 1px solid rgba(56,189,248,0.08);
+  border: 1px solid var(--glow-border, rgba(96,165,250,0.25));
+  outline: 1px solid var(--glow-outline, rgba(56,189,248,0.08));
   transition: all 0.25s ease-in-out;
 }
 
-/* Neon bar indicator */
 .channel-item.active::before {
   content: "";
   position: absolute;
@@ -171,14 +170,13 @@
   bottom: 8px;
   width: 4px;
   border-radius: 2px;
-  background: linear-gradient(180deg, rgba(56,189,248,1), rgba(124,77,255,0.9));
-  box-shadow: 0 4px 20px rgba(56,189,248,0.6);
+  background: var(--glow-bar, linear-gradient(180deg, rgba(56,189,248,1), rgba(124,77,255,0.9)));
+  box-shadow: 0 4px 20px var(--glow-bar-shadow, rgba(56,189,248,0.6));
 }
 
-/* Subtle hover effect stays smooth when active */
 .channel-item.active:hover {
   transform: translateY(-5px) scale(1.03);
-  box-shadow: 0 12px 36px rgba(56,189,248,0.3), 0 3px 8px rgba(0,0,0,0.6);
+  box-shadow: 0 12px 36px var(--glow-shadow, rgba(56,189,248,0.25)), 0 3px 8px rgba(0,0,0,0.6);
 }
 </style>  
 </head>  
@@ -505,7 +503,46 @@ waitForChannels();
   
 /* ========== Expose small API for debugging ========== */  
 window.__nxb = { populateList, highlightSearch, loadStream };  
-  
+
+
+
+
+  // Auto-color glow from channel logos
+function extractDominantColor(img, el) {
+  try {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const size = 8; // small sampling
+    canvas.width = size; canvas.height = size;
+    ctx.drawImage(img, 0, 0, size, size);
+    let data = ctx.getImageData(0, 0, size, size).data;
+    let r=0,g=0,b=0,count=0;
+    for(let i=0;i<data.length;i+=4){
+      r+=data[i]; g+=data[i+1]; b+=data[i+2]; count++;
+    }
+    r=Math.round(r/count); g=Math.round(g/count); b=Math.round(b/count);
+    const color = `rgb(${r},${g},${b})`;
+    el.style.setProperty("--glow-shadow", `rgba(${r},${g},${b},0.35)`);
+    el.style.setProperty("--glow-bg", `rgba(${r},${g},${b},0.1)`);
+    el.style.setProperty("--glow-border", `rgba(${r},${g},${b},0.3)`);
+    el.style.setProperty("--glow-outline", `rgba(${r},${g},${b},0.15)`);
+    el.style.setProperty("--glow-bar", `linear-gradient(180deg, rgb(${r},${g},${b}), rgba(${r},${g},${b},0.6))`);
+    el.style.setProperty("--glow-bar-shadow", `rgba(${r},${g},${b},0.6)`);
+  } catch(e){ /* fallback silent */ }
+}
+
+// Attach this to each logo after loading
+function setupLogoColorSync() {
+  document.querySelectorAll('#channelList .channel-item img').forEach(img => {
+    img.addEventListener('load', () => {
+      const el = img.closest('.channel-item');
+      extractDominantColor(img, el);
+    });
+  });
+}
+
+// Run after populating the list
+document.addEventListener('DOMContentLoaded', setupLogoColorSync);
 </script>  
 <script>
 /* EXTREME OBFUSCATION DROP-IN */
